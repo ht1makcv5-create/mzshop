@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mz shop — каталог кульчиків</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-void:#0b0b0c;
+    --bg-surface:#161512;
+    --bg-surface-2:#1e1c17;
+    --gold:#c9a961;
+    --gold-bright:#e8cd8a;
+    --cream:#f2ede1;
+    --muted:#8c8574;
+    --line:#2a2822;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg-void);color:var(--cream);font-family:'Jost',sans-serif;font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,.serif{font-family:'Cormorant Garamond',serif;}
+  a{color:inherit;text-decoration:none;}
+  img{max-width:100%;display:block;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+
+  .chain{display:flex;align-items:center;justify-content:center;gap:10px;height:20px;opacity:.85;}
+  .chain span{width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.55;}
+  .chain span:nth-child(3n){opacity:1;width:8px;height:8px;box-shadow:0 0 8px rgba(201,169,97,.6);}
+  .chain::before,.chain::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(11,11,12,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0;}
+  .logo{font-size:1.7rem;font-style:italic;font-weight:500;letter-spacing:.5px;color:var(--gold-bright);}
+  .logo b{font-style:normal;color:var(--cream);font-weight:400;}
+  .nav-links{display:flex;gap:34px;font-size:.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+  .nav-links a{padding-bottom:3px;border-bottom:1px solid transparent;transition:.25s;}
+  .nav-links a:hover{color:var(--gold-bright);}
+  .nav-links a.active{color:var(--gold);border-color:var(--gold);}
+  .admin-link{font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--line);border:1px solid var(--line);padding:6px 12px;border-radius:20px;transition:.25s;cursor:pointer;background:transparent;}
+  .admin-link:hover{color:var(--gold);border-color:var(--gold);}
+
+  .hero{padding:90px 0 50px;text-align:center;position:relative;overflow:hidden;}
+  .hero .eyebrow{font-size:.75rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:22px;display:block;}
+  .hero h1{font-size:clamp(2.4rem,6vw,4.4rem);font-weight:500;font-style:italic;line-height:1.08;color:var(--cream);max-width:820px;margin:0 auto;}
+  .hero h1 em{color:var(--gold-bright);font-style:italic;}
+  .hero p{max-width:480px;margin:24px auto 0;color:var(--muted);font-size:1rem;}
+  .hero-cta{margin-top:38px;display:inline-block;padding:15px 40px;border:1px solid var(--gold);border-radius:2px;font-size:.8rem;letter-spacing:2px;text-transform:uppercase;transition:.3s;}
+  .hero-cta:hover{background:var(--gold);color:var(--bg-void);}
+
+  .earring-art{width:150px;margin:44px auto 0;animation:sway 4.5s ease-in-out infinite;transform-origin:top center;}
+  @keyframes sway{0%,100%{transform:rotate(-3deg);}50%{transform:rotate(3deg);}}
+  @media (prefers-reduced-motion:reduce){.earring-art{animation:none;}}
+
+  .catalog{padding:60px 0 30px;}
+  .section-head{text-align:center;margin-bottom:40px;}
+  .section-head h2{font-size:2.2rem;font-weight:500;font-style:italic;color:var(--cream);}
+  .section-head span{color:var(--muted);font-size:.85rem;letter-spacing:2px;text-transform:uppercase;}
+
+  .filters{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:46px;}
+  .filter-btn{font-family:'Jost';font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;padding:9px 18px;border:1px solid var(--line);border-radius:20px;color:var(--muted);background:transparent;cursor:pointer;transition:.25s;}
+  .filter-btn:hover{border-color:var(--gold);color:var(--gold-bright);}
+  .filter-btn.active{background:var(--gold);border-color:var(--gold);color:var(--bg-void);font-weight:500;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:26px;}
+  .card{background:var(--bg-surface);border:1px solid var(--line);border-radius:4px;overflow:hidden;transition:.3s;position:relative;}
+  .card:hover{transform:translateY(-4px);border-color:var(--gold);}
+  .thumb{aspect-ratio:4/5;background:var(--bg-surface-2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+  .thumb img{width:100%;height:100%;object-fit:cover;}
+  .badge-new{position:absolute;top:10px;left:10px;background:var(--gold);color:var(--bg-void);font-size:.65rem;letter-spacing:1px;text-transform:uppercase;padding:4px 9px;border-radius:12px;font-weight:500;z-index:2;}
+  .card-del{position:absolute;bottom:10px;right:10px;background:rgba(11,11,12,.75);border:1px solid #6b3030;color:#e0a0a0;font-size:.65rem;letter-spacing:1px;text-transform:uppercase;padding:6px 10px;border-radius:14px;cursor:pointer;display:none;}
+  body.admin-mode .card-del{display:block;}
+  .empty-state{grid-column:1/-1;text-align:center;padding:60px 0;color:var(--muted);font-size:.9rem;}
+
+  .cta-strip{padding:70px 0;text-align:center;}
+  .cta-strip h3{font-size:1.9rem;font-style:italic;font-weight:500;margin-bottom:14px;}
+  .cta-strip p{color:var(--muted);font-size:.9rem;margin-bottom:30px;}
+  .cta-strip a.btn{display:inline-block;padding:16px 40px;background:linear-gradient(135deg,var(--gold-bright),var(--gold));color:var(--bg-void);font-weight:500;letter-spacing:1px;text-transform:uppercase;font-size:.82rem;border-radius:30px;box-shadow:0 8px 30px -8px rgba(201,169,97,.5);transition:.3s;}
+  .cta-strip a.btn:hover{transform:translateY(-2px);}
+
+  footer{padding:30px 0 40px;text-align:center;font-size:.72rem;color:#4a4740;letter-spacing:1px;}
+
+  .overlay{position:fixed;inset:0;background:rgba(5,5,5,.82);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+  .overlay.show{display:flex;}
+  .modal{background:var(--bg-surface);border:1px solid var(--line);border-radius:6px;max-width:440px;width:100%;padding:34px;max-height:88vh;overflow-y:auto;}
+  .modal h3{font-family:'Cormorant Garamond';font-style:italic;font-size:1.6rem;color:var(--gold-bright);margin-bottom:6px;}
+  .modal p.hint{color:var(--muted);font-size:.82rem;margin-bottom:22px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:.72rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+  .field input[type=password],.field select{width:100%;background:var(--bg-void);border:1px solid var(--line);color:var(--cream);padding:11px 13px;border-radius:3px;font-family:'Jost';font-size:.9rem;}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--gold);}
+  .field input[type=file]{color:var(--muted);font-size:.8rem;width:100%;}
+  .checkrow{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted);margin-bottom:20px;}
+  .btn-gold{width:100%;background:var(--gold);color:var(--bg-void);border:none;padding:13px;border-radius:3px;font-weight:500;letter-spacing:1px;text-transform:uppercase;font-size:.8rem;cursor:pointer;transition:.25s;}
+  .btn-gold:hover{background:var(--gold-bright);}
+  .btn-ghost{width:100%;background:transparent;color:var(--muted);border:1px solid var(--line);padding:11px;border-radius:3px;margin-top:10px;font-size:.78rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+  .btn-ghost:hover{color:var(--cream);border-color:var(--muted);}
+  .modal-thumb-preview{width:100%;aspect-ratio:1/1;background:var(--bg-void);border:1px dashed var(--line);border-radius:4px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--muted);font-size:.75rem;}
+  .modal-thumb-preview img{width:100%;height:100%;object-fit:cover;}
+  .msg{font-size:.75rem;color:#e0a0a0;margin:-8px 0 12px;min-height:14px;}
+  .admin-bar{position:sticky;top:0;background:var(--gold);color:var(--bg-void);text-align:center;font-size:.8rem;letter-spacing:1px;padding:9px;z-index:60;display:none;}
+  body.admin-mode .admin-bar{display:block;}
+  .admin-bar button{background:var(--bg-void);color:var(--gold-bright);border:none;padding:5px 12px;border-radius:12px;font-size:.7rem;letter-spacing:1px;text-transform:uppercase;margin-left:14px;cursor:pointer;}
+
+  @media(max-width:640px){ .nav-links{display:none;} }
+</style>
+</head>
+<body>
+
+<div class="admin-bar" id="adminBar">Режим адміністратора · <button type="button" onclick="openAddForm()">+ Додати фото</button><button type="button" onclick="logoutAdmin()">Вийти</button></div>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo"><b>Mz</b> shop</div>
+    <nav class="nav-links">
+      <a href="index.html" class="active">Каталог</a>
+      <a href="index.html#catalog" onclick="filterCategory('Новинки');return false;">Новинки</a>
+      <a href="contacts.html">Контакти</a>
+    </nav>
+    <button type="button" class="admin-link" onclick="openAdminGate()">Адмін</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Mz shop · handmade кульчики</span>
+    <h1>Деталь, яку <em>помічають</em><br>перш ніж вітаються</h1>
+    <p>Маленька колекція кульчиків — застібки, кільця, перетяжки та цвяшки — підібрані для тих, хто любить деталі.</p>
+    <a href="#catalog" class="hero-cta">Дивитись каталог</a>
+    <svg class="earring-art" viewBox="0 0 100 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="14" r="9" stroke="#c9a961" stroke-width="2"/>
+      <line x1="50" y1="23" x2="50" y2="46" stroke="#c9a961" stroke-width="1.5"/>
+      <circle cx="50" cy="70" r="24" stroke="#e8cd8a" stroke-width="2"/>
+      <circle cx="50" cy="70" r="3" fill="#c9a961"/>
+      <line x1="35" y1="112" x2="65" y2="112" stroke="#c9a961" stroke-width="1" opacity=".5"/>
+    </svg>
+  </div>
+</section>
+
+<div class="chain"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<section class="catalog" id="catalog">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Каталог</h2>
+      <span>обирайте за типом застібки</span>
+    </div>
+    <div class="filters" id="filters"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<div class="chain"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<section class="cta-strip">
+  <div class="wrap">
+    <h3>Сподобались кульчики?</h3>
+    <p>Всі деталі про замовлення та зв'язок — на сторінці контактів</p>
+    <a class="btn" href="contacts.html">Перейти в контакти</a>
+  </div>
+</section>
+
+<footer>Mz shop · всі кульчики зроблені вручну</footer>
+
+<!-- admin: password gate -->
+<div class="overlay" id="gateOverlay">
+  <div class="modal">
+    <h3>Вхід в адмін-панель</h3>
+    <p class="hint">Введіть пароль, щоб керувати товарами.</p>
+    <div class="field">
+      <label>Пароль</label>
+      <input type="password" id="gatePassword">
+    </div>
+    <div class="msg" id="gateMsg"></div>
+    <button type="button" class="btn-gold" onclick="checkPassword()">Увійти</button>
+    <button type="button" class="btn-ghost" onclick="closeOverlay('gateOverlay')">Скасувати</button>
+  </div>
+</div>
+
+<!-- admin: add product form -->
+<div class="overlay" id="formOverlay">
+  <div class="modal">
+    <h3>Нове фото</h3>
+    <p class="hint">Закиньте фото — все інше вже написано на ньому. Оберіть лише категорію.</p>
+    <div class="modal-thumb-preview" id="thumbPreview">фото не обрано</div>
+    <div class="field">
+      <label>Фото товару</label>
+      <input type="file" id="fPhoto" accept="image/*">
+    </div>
+    <div class="field">
+      <label>Категорія</label>
+      <select id="fCategory"></select>
+    </div>
+    <div class="checkrow">
+      <input type="checkbox" id="fNew">
+      <label for="fNew" style="margin:0;text-transform:none;letter-spacing:0;color:var(--cream);">Позначити як новинку</label>
+    </div>
+    <div class="msg" id="formMsg"></div>
+    <button type="button" class="btn-gold" onclick="addProduct()">Додати</button>
+    <button type="button" class="btn-ghost" onclick="closeOverlay('formOverlay')">Закрити</button>
+  </div>
+</div>
+
+<script>
+/* ---------- дані ---------- */
+var CATEGORIES = ["Англійська застібка","Французька застібка","Сережки-кільця","Застібка кільце","Перетяжки","Цвяшки"];
+var ADMIN_PASSWORD = "mzshop2026"; // ← змініть на свій пароль перед публікацією
+var STORAGE_KEY = "mzshop_products_v3";
+
+/* безпечне сховище: якщо localStorage недоступний (наприклад у деяких превʼю-режимах),
+   працюємо з пам'яттю сторінки, щоб адмінка ніколи не падала */
+var memoryStore = null;
+function storageGet(){
+  try{
+    var raw = window.localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return memoryStore; }
+}
+function storageSet(list){
+  memoryStore = list;
+  try{ window.localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){ /* тихо працюємо з пам'яттю */ }
+}
+
+function loadProducts(){
+  var data = storageGet();
+  return data ? data : [];
+}
+var products = loadProducts();
+var activeFilter = "Усі";
+
+/* ---------- рендер ---------- */
+function renderFilters(){
+  var wrap = document.getElementById('filters');
+  var all = ["Усі"].concat(CATEGORIES, ["Новинки"]);
+  wrap.innerHTML = all.map(function(c){
+    return '<button type="button" class="filter-btn ' + (c===activeFilter?'active':'') + '" onclick="filterCategory(\'' + c.replace(/'/g,"\\'") + '\')">' + c + '</button>';
+  }).join('');
+}
+
+function filterCategory(cat){
+  activeFilter = cat;
+  renderFilters();
+  renderGrid();
+  var el = document.getElementById('catalog');
+  if(el) el.scrollIntoView({behavior:'smooth'});
+}
+
+function renderGrid(){
+  var grid = document.getElementById('grid');
+  var list = products;
+  if(activeFilter !== "Усі"){
+    list = activeFilter === "Новинки" ? products.filter(function(p){return p.isNew;}) : products.filter(function(p){return p.category===activeFilter;});
+  }
+  if(list.length === 0){
+    grid.innerHTML = '<div class="empty-state">Тут поки немає фото. Додайте перше через адмін-панель ✦</div>';
+    return;
+  }
+  grid.innerHTML = list.map(function(p){
+    return '<div class="card">' +
+      (p.isNew ? '<span class="badge-new">Новинка</span>' : '') +
+      '<div class="thumb"><img src="' + p.img + '" alt="' + p.category + '"></div>' +
+      '<button type="button" class="card-del" onclick="deleteProduct(' + p.id + ')">Видалити</button>' +
+    '</div>';
+  }).join('');
+}
+
+function deleteProduct(id){
+  if(!confirm('Видалити це фото?')) return;
+  products = products.filter(function(p){ return p.id !== id; });
+  storageSet(products);
+  renderGrid();
+}
+
+/* ---------- адмін-вхід ---------- */
+function openAdminGate(){
+  if(document.body.classList.contains('admin-mode')){ openAddForm(); return; }
+  document.getElementById('gateMsg').textContent = '';
+  document.getElementById('gatePassword').value = '';
+  document.getElementById('gateOverlay').classList.add('show');
+}
+function closeOverlay(id){ document.getElementById(id).classList.remove('show'); }
+function checkPassword(){
+  var val = document.getElementById('gatePassword').value;
+  if(val === ADMIN_PASSWORD){
+    document.body.classList.add('admin-mode');
+    closeOverlay('gateOverlay');
+    openAddForm();
+  }else{
+    document.getElementById('gateMsg').textContent = 'Невірний пароль, спробуйте ще раз';
+  }
+}
+function logoutAdmin(){ document.body.classList.remove('admin-mode'); }
+
+/* ---------- форма додавання фото ---------- */
+var pendingImg = null;
+function openAddForm(){
+  var sel = document.getElementById('fCategory');
+  sel.innerHTML = CATEGORIES.map(function(c){ return '<option value="' + c + '">' + c + '</option>'; }).join('');
+  pendingImg = null;
+  document.getElementById('thumbPreview').innerHTML = 'фото не обрано';
+  document.getElementById('fPhoto').value = '';
+  document.getElementById('fNew').checked = false;
+  document.getElementById('formMsg').textContent = '';
+  document.getElementById('formOverlay').classList.add('show');
+}
+document.addEventListener('change', function(e){
+  if(e.target && e.target.id === 'fPhoto'){
+    var file = e.target.files && e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      pendingImg = ev.target.result;
+      document.getElementById('thumbPreview').innerHTML = '<img src="' + pendingImg + '">';
+    };
+    reader.readAsDataURL(file);
+  }
+});
+function addProduct(){
+  var category = document.getElementById('fCategory').value;
+  var isNew = document.getElementById('fNew').checked;
+  if(!pendingImg){
+    document.getElementById('formMsg').textContent = 'Спершу оберіть фото';
+    return;
+  }
+  var product = { id: Date.now(), category: category, img: pendingImg, isNew: isNew };
+  products.unshift(product);
+  storageSet(products);
+  closeOverlay('formOverlay');
+  activeFilter = "Усі";
+  renderFilters();
+  renderGrid();
+}
+
+renderFilters();
+renderGrid();
+</script>
+</body>
+</html>
