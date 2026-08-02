@@ -408,6 +408,39 @@ window.showCheckoutForm = function(){
     <button type="button" class="btn-ghost" onclick="renderCartView()">Назад в кошик</button>`;
 };
 
+/* ---------- фото товарів разом із замовленням у Telegram ---------- */
+async function sendOrderPhotos(chatId, items){
+  if (!items || !items.length) return;
+
+  // 1 товар — просто одне фото з підписом
+  if (items.length === 1) {
+    const it = items[0];
+    try{
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, photo: it.imageUrl, caption: `${it.category} × ${it.qty}` })
+      });
+    }catch(err){ console.error('Не вдалось надіслати фото', err); }
+    return;
+  }
+
+  // кілька товарів — альбомом, максимум 10 фото в одній групі
+  for (let i = 0; i < items.length; i += 10) {
+    const chunk = items.slice(i, i + 10);
+    const media = chunk.map(it => ({
+      type: 'photo', media: it.imageUrl, caption: `${it.category} × ${it.qty}`
+    }));
+    try{
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMediaGroup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, media })
+      });
+    }catch(err){ console.error('Не вдалось надіслати альбом фото', err); }
+  }
+}
+
 window.submitOrder = async function(){
   const last = document.getElementById('ordLast').value.trim();
   const first = document.getElementById('ordFirst').value.trim();
@@ -456,6 +489,7 @@ window.submitOrder = async function(){
           body: JSON.stringify({ chat_id: chatId, text: tgText })
         })
       ));
+      await Promise.all(TELEGRAM_CHAT_IDS.map(chatId => sendOrderPhotos(chatId, cart)));
     }
 
     document.getElementById('cartTitle').textContent = 'Готово';
