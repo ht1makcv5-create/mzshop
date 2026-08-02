@@ -14,17 +14,10 @@ export const firebaseConfig = {
   appId: "1:1092255673249:web:7da016f0fba12f9f8439e0"
 };
 
-// 2. Cloudinary — сховище фото, безкоштовно і без банківської картки
-export const CLOUDINARY_CLOUD_NAME = "ur0lu2ln";
-export const CLOUDINARY_UPLOAD_PRESET = "ml_default";
+// 2. Telegram-бот — сповіщення про замовлення прийдуть тобі в Telegram
+export const TELEGRAM_BOT_TOKEN = "8784699325:AAEl2LBi04buJdOKg2TSaVT2erFi1Z8icoI";
+// Можна вказати декілька отримувачів — сповіщення прийде кожному з цього списку
+export const TELEGRAM_CHAT_IDS = ["1865474893", "8689285693"];
 
-// 3. EmailJS — надсилання листа про замовлення на пошту (безкоштовно)
-export const EMAILJS_PUBLIC_KEY = "ВАШ_PUBLIC_KEY";
-export const EMAILJS_SERVICE_ID = "ВАШ_SERVICE_ID";
-export const EMAILJS_TEMPLATE_ID = "ВАШ_TEMPLATE_ID";
-
-// 4. Пошта, куди приходитимуть замовлення
-export const ORDER_EMAIL = "soronovycz@gmail.com";
-
-// 5. Пароль для входу в адмін-панель (змініть на свій)
-export const ADMIN_PASSWORD = "mzshop2026";
+// Керування товарами (додавання/видалення фото) тепер відбувається
+// через Telegram-бота — дивись папку mzshop-bot/, а не тут.
