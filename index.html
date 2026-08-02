@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
   :root{
     --bg-void:#0b0b0c;
@@ -32,15 +33,21 @@
   .chain::before,.chain::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);}
 
   header{position:sticky;top:0;z-index:50;background:rgba(11,11,12,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
-  .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0;}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0;gap:18px;}
   .logo{font-size:1.7rem;font-style:italic;font-weight:500;letter-spacing:.5px;color:var(--gold-bright);}
   .logo b{font-style:normal;color:var(--cream);font-weight:400;}
   .nav-links{display:flex;gap:34px;font-size:.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
   .nav-links a{padding-bottom:3px;border-bottom:1px solid transparent;transition:.25s;}
   .nav-links a:hover{color:var(--gold-bright);}
   .nav-links a.active{color:var(--gold);border-color:var(--gold);}
-  .admin-link{font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--line);border:1px solid var(--line);padding:6px 12px;border-radius:20px;transition:.25s;cursor:pointer;background:transparent;}
+  .nav-right{display:flex;align-items:center;gap:12px;}
+  .admin-link{font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--line);border:1px solid var(--line);padding:6px 12px;border-radius:20px;transition:.25s;cursor:pointer;background:transparent;white-space:nowrap;}
   .admin-link:hover{color:var(--gold);border-color:var(--gold);}
+  .cart-btn{position:relative;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--cream);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.25s;flex-shrink:0;}
+  .cart-btn:hover{border-color:var(--gold);color:var(--gold-bright);}
+  .cart-badge{position:absolute;top:-6px;right:-6px;background:var(--gold);color:var(--bg-void);font-size:.62rem;font-weight:600;min-width:18px;height:18px;border-radius:10px;display:none;align-items:center;justify-content:center;padding:0 4px;}
+  .cart-badge.show{display:flex;}
+  @media(max-width:640px){ .nav-links{display:none;} }
 
   .hero{padding:90px 0 50px;text-align:center;position:relative;overflow:hidden;}
   .hero .eyebrow{font-size:.75rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:22px;display:block;}
@@ -64,13 +71,14 @@
   .filter-btn:hover{border-color:var(--gold);color:var(--gold-bright);}
   .filter-btn.active{background:var(--gold);border-color:var(--gold);color:var(--bg-void);font-weight:500;}
 
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:26px;}
+  /* менші фото — 4+ в ряд */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}
   .card{background:var(--bg-surface);border:1px solid var(--line);border-radius:4px;overflow:hidden;transition:.3s;position:relative;}
   .card:hover{transform:translateY(-4px);border-color:var(--gold);}
-  .thumb{aspect-ratio:4/5;background:var(--bg-surface-2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+  .thumb{aspect-ratio:4/5;background:var(--bg-surface-2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;cursor:pointer;}
   .thumb img{width:100%;height:100%;object-fit:cover;}
-  .badge-new{position:absolute;top:10px;left:10px;background:var(--gold);color:var(--bg-void);font-size:.65rem;letter-spacing:1px;text-transform:uppercase;padding:4px 9px;border-radius:12px;font-weight:500;z-index:2;}
-  .card-del{position:absolute;bottom:10px;right:10px;background:rgba(11,11,12,.75);border:1px solid #6b3030;color:#e0a0a0;font-size:.65rem;letter-spacing:1px;text-transform:uppercase;padding:6px 10px;border-radius:14px;cursor:pointer;display:none;}
+  .badge-new{position:absolute;top:8px;left:8px;background:var(--gold);color:var(--bg-void);font-size:.6rem;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:12px;font-weight:500;z-index:2;}
+  .card-del{position:absolute;bottom:8px;right:8px;background:rgba(11,11,12,.75);border:1px solid #6b3030;color:#e0a0a0;font-size:.6rem;letter-spacing:1px;text-transform:uppercase;padding:5px 9px;border-radius:14px;cursor:pointer;display:none;}
   body.admin-mode .card-del{display:block;}
   .empty-state{grid-column:1/-1;text-align:center;padding:60px 0;color:var(--muted);font-size:.9rem;}
 
@@ -89,22 +97,64 @@
   .modal p.hint{color:var(--muted);font-size:.82rem;margin-bottom:22px;}
   .field{margin-bottom:16px;}
   .field label{display:block;font-size:.72rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
-  .field input[type=password],.field select{width:100%;background:var(--bg-void);border:1px solid var(--line);color:var(--cream);padding:11px 13px;border-radius:3px;font-family:'Jost';font-size:.9rem;}
-  .field input:focus,.field select:focus{outline:none;border-color:var(--gold);}
+  .field input[type=password],.field input[type=text],.field input[type=tel],.field select,.field textarea{width:100%;background:var(--bg-void);border:1px solid var(--line);color:var(--cream);padding:11px 13px;border-radius:3px;font-family:'Jost';font-size:.9rem;}
+  .field textarea{resize:vertical;min-height:64px;}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--gold);}
   .field input[type=file]{color:var(--muted);font-size:.8rem;width:100%;}
+  .field-hint{font-size:.7rem;color:var(--muted);margin-top:5px;}
   .checkrow{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted);margin-bottom:20px;}
   .btn-gold{width:100%;background:var(--gold);color:var(--bg-void);border:none;padding:13px;border-radius:3px;font-weight:500;letter-spacing:1px;text-transform:uppercase;font-size:.8rem;cursor:pointer;transition:.25s;}
   .btn-gold:hover{background:var(--gold-bright);}
+  .btn-gold:disabled{opacity:.5;cursor:default;}
   .btn-ghost{width:100%;background:transparent;color:var(--muted);border:1px solid var(--line);padding:11px;border-radius:3px;margin-top:10px;font-size:.78rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
   .btn-ghost:hover{color:var(--cream);border-color:var(--muted);}
-  .modal-thumb-preview{width:100%;aspect-ratio:1/1;background:var(--bg-void);border:1px dashed var(--line);border-radius:4px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--muted);font-size:.75rem;}
+  .modal-thumb-preview{width:100%;min-height:70px;background:var(--bg-void);border:1px dashed var(--line);border-radius:4px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--muted);font-size:.78rem;text-align:center;padding:12px;}
   .modal-thumb-preview img{width:100%;height:100%;object-fit:cover;}
   .msg{font-size:.75rem;color:#e0a0a0;margin:-8px 0 12px;min-height:14px;}
+  .progress-msg{font-size:.75rem;color:var(--gold-bright);margin:-8px 0 12px;min-height:14px;}
   .admin-bar{position:sticky;top:0;background:var(--gold);color:var(--bg-void);text-align:center;font-size:.8rem;letter-spacing:1px;padding:9px;z-index:60;display:none;}
   body.admin-mode .admin-bar{display:block;}
   .admin-bar button{background:var(--bg-void);color:var(--gold-bright);border:none;padding:5px 12px;border-radius:12px;font-size:.7rem;letter-spacing:1px;text-transform:uppercase;margin-left:14px;cursor:pointer;}
 
-  @media(max-width:640px){ .nav-links{display:none;} }
+  /* ---- квіклук фото + кнопка в кошик ---- */
+  .lb-modal{max-width:380px;padding:0;overflow:hidden;}
+  .lb-photo{width:100%;aspect-ratio:4/5;background:var(--bg-surface-2);overflow:hidden;}
+  .lb-photo img{width:100%;height:100%;object-fit:cover;}
+  .lb-body{padding:26px;}
+  .lb-cat{font-family:'Cormorant Garamond';font-style:italic;font-size:1.3rem;color:var(--gold-bright);margin-bottom:4px;}
+  .lb-new{display:inline-block;margin-bottom:14px;font-size:.65rem;letter-spacing:1px;text-transform:uppercase;color:var(--gold);}
+  .qty-row{display:flex;align-items:center;justify-content:space-between;margin:18px 0;}
+  .qty-row .qty-label{font-size:.72rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+  .qty-stepper{display:flex;align-items:center;gap:14px;background:var(--bg-void);border:1px solid var(--line);border-radius:20px;padding:6px 6px;}
+  .qty-stepper button{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--cream);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .qty-stepper button:hover{border-color:var(--gold);color:var(--gold-bright);}
+  .qty-stepper span{min-width:16px;text-align:center;font-size:.9rem;}
+
+  /* ---- кошик справа ---- */
+  .cart-scrim{position:fixed;inset:0;background:rgba(5,5,5,.6);z-index:190;display:none;}
+  .cart-scrim.show{display:block;}
+  .cart-panel{position:fixed;top:0;right:-440px;width:400px;max-width:92vw;height:100%;background:var(--bg-surface);border-left:1px solid var(--line);z-index:200;transition:right .35s ease;display:flex;flex-direction:column;}
+  .cart-panel.open{right:0;}
+  .cart-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px;border-bottom:1px solid var(--line);}
+  .cart-head h3{font-family:'Cormorant Garamond';font-style:italic;font-size:1.5rem;color:var(--gold-bright);}
+  .cart-close{background:transparent;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;line-height:1;}
+  .cart-close:hover{color:var(--cream);}
+  .cart-body{flex:1;overflow-y:auto;padding:18px 24px;}
+  .cart-empty{color:var(--muted);font-size:.88rem;text-align:center;padding:60px 10px;}
+  .cart-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);}
+  .cart-item img{width:58px;height:58px;object-fit:cover;border-radius:4px;flex-shrink:0;}
+  .cart-item-info{flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px;}
+  .cart-item-cat{font-family:'Cormorant Garamond';font-style:italic;font-size:1.05rem;color:var(--cream);}
+  .cart-item-controls{display:flex;align-items:center;justify-content:space-between;}
+  .cart-item-remove{background:transparent;border:none;color:var(--muted);font-size:.7rem;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;}
+  .cart-item-remove:hover{color:#e0a0a0;}
+  .cart-foot{padding:20px 24px;border-top:1px solid var(--line);}
+  .cart-total{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted);margin-bottom:16px;}
+  .cart-total b{color:var(--cream);font-weight:500;}
+  .order-success{text-align:center;padding:50px 14px;}
+  .order-success .ok-icon{width:52px;height:52px;border-radius:50%;border:1px solid var(--gold);color:var(--gold);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:1.4rem;}
+  .order-success h4{font-family:'Cormorant Garamond';font-style:italic;font-size:1.4rem;color:var(--gold-bright);margin-bottom:10px;}
+  .order-success p{color:var(--muted);font-size:.85rem;}
 </style>
 </head>
 <body>
@@ -119,7 +169,13 @@
       <a href="index.html#catalog" onclick="filterCategory('Новинки');return false;">Новинки</a>
       <a href="contacts.html">Контакти</a>
     </nav>
-    <button type="button" class="admin-link" onclick="openAdminGate()">Адмін</button>
+    <div class="nav-right">
+      <button type="button" class="cart-btn" onclick="openCart()" aria-label="Кошик">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 6h15l-1.5 9h-12L6 6zM6 6L5 3H2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.4" fill="currentColor"/><circle cx="17" cy="20" r="1.4" fill="currentColor"/></svg>
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+      <button type="button" class="admin-link" onclick="openAdminGate()">Адмін</button>
+    </div>
   </div>
 </header>
 
@@ -148,7 +204,7 @@
       <span>обирайте за типом застібки</span>
     </div>
     <div class="filters" id="filters"></div>
-    <div class="grid" id="grid"></div>
+    <div class="grid" id="grid"><div class="empty-state">Завантаження…</div></div>
   </div>
 </section>
 
@@ -179,162 +235,409 @@
   </div>
 </div>
 
-<!-- admin: add product form -->
+<!-- admin: bulk add product form -->
 <div class="overlay" id="formOverlay">
   <div class="modal">
-    <h3>Нове фото</h3>
-    <p class="hint">Закиньте фото — все інше вже написано на ньому. Оберіть лише категорію.</p>
+    <h3>Нові фото</h3>
+    <p class="hint">Оберіть одразу декілька фото (навіть 40) — всі підуть в одну категорію.</p>
+    <div class="field">
+      <label>Фото товарів</label>
+      <input type="file" id="fPhoto" accept="image/*" multiple>
+    </div>
     <div class="modal-thumb-preview" id="thumbPreview">фото не обрано</div>
     <div class="field">
-      <label>Фото товару</label>
-      <input type="file" id="fPhoto" accept="image/*">
-    </div>
-    <div class="field">
-      <label>Категорія</label>
+      <label>Категорія (застосується до всіх обраних фото)</label>
       <select id="fCategory"></select>
     </div>
     <div class="checkrow">
       <input type="checkbox" id="fNew">
-      <label for="fNew" style="margin:0;text-transform:none;letter-spacing:0;color:var(--cream);">Позначити як новинку</label>
+      <label for="fNew" style="margin:0;text-transform:none;letter-spacing:0;color:var(--cream);">Позначити всі як новинку</label>
     </div>
     <div class="msg" id="formMsg"></div>
-    <button type="button" class="btn-gold" onclick="addProduct()">Додати</button>
+    <div class="progress-msg" id="formProgress"></div>
+    <button type="button" class="btn-gold" id="uploadBtn" onclick="addProducts()">Завантажити</button>
     <button type="button" class="btn-ghost" onclick="closeOverlay('formOverlay')">Закрити</button>
   </div>
 </div>
 
-<script>
+<!-- quick view + add to cart -->
+<div class="overlay" id="lightboxOverlay">
+  <div class="modal lb-modal">
+    <div class="lb-photo"><img id="lbImg" src="" alt=""></div>
+    <div class="lb-body">
+      <div class="lb-cat" id="lbCat"></div>
+      <div class="lb-new" id="lbNew" style="display:none;">✦ Новинка</div>
+      <div class="qty-row">
+        <span class="qty-label">Кількість</span>
+        <div class="qty-stepper">
+          <button type="button" onclick="lbQtyChange(-1)">−</button>
+          <span id="lbQty">1</span>
+          <button type="button" onclick="lbQtyChange(1)">+</button>
+        </div>
+      </div>
+      <button type="button" class="btn-gold" onclick="addToCartFromLightbox()">Додати в кошик</button>
+      <button type="button" class="btn-ghost" onclick="closeOverlay('lightboxOverlay')">Закрити</button>
+    </div>
+  </div>
+</div>
+
+<!-- кошик / оформлення замовлення -->
+<div class="cart-scrim" id="cartScrim" onclick="closeCart()"></div>
+<aside class="cart-panel" id="cartPanel">
+  <div class="cart-head">
+    <h3 id="cartTitle">Кошик</h3>
+    <button type="button" class="cart-close" onclick="closeCart()">×</button>
+  </div>
+  <div class="cart-body" id="cartBody"></div>
+  <div class="cart-foot" id="cartFoot"></div>
+</aside>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, deleteDoc, doc,
+  onSnapshot, serverTimestamp, query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  firebaseConfig, ADMIN_PASSWORD,
+  CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET,
+  EMAILJS_PUBLIC_KEY, EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, ORDER_EMAIL
+} from "./firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+if (window.emailjs) emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
 /* ---------- дані ---------- */
-var CATEGORIES = ["Англійська застібка","Французька застібка","Сережки-кільця","Застібка кільце","Перетяжки","Цвяшки"];
-var ADMIN_PASSWORD = "mzshop2026"; // ← змініть на свій пароль перед публікацією
-var STORAGE_KEY = "mzshop_products_v3";
+const CATEGORIES = ["Англійська застібка","Французька застібка","Сережки-кільця","Застібка кільце","Перетяжки","Цвяшки"];
+let products = [];
+let activeFilter = "Усі";
+let cart = []; // {id, category, imageUrl, qty}
+let lbProduct = null;
+let lbQty = 1;
 
-/* безпечне сховище: якщо localStorage недоступний (наприклад у деяких превʼю-режимах),
-   працюємо з пам'яттю сторінки, щоб адмінка ніколи не падала */
-var memoryStore = null;
-function storageGet(){
-  try{
-    var raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  }catch(e){ return memoryStore; }
-}
-function storageSet(list){
-  memoryStore = list;
-  try{ window.localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){ /* тихо працюємо з пам'яттю */ }
-}
+/* ---------- живе оновлення каталогу з бази для ВСІХ відвідувачів ---------- */
+const qProducts = query(collection(db, "products"), orderBy("createdAt", "desc"));
+onSnapshot(qProducts, (snap) => {
+  products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderFilters();
+  renderGrid();
+}, (err) => {
+  document.getElementById('grid').innerHTML = '<div class="empty-state">Не вдалось завантажити каталог. Перевірте налаштування Firebase у firebase-config.js.</div>';
+  console.error(err);
+});
 
-function loadProducts(){
-  var data = storageGet();
-  return data ? data : [];
-}
-var products = loadProducts();
-var activeFilter = "Усі";
-
-/* ---------- рендер ---------- */
+/* ---------- рендер каталогу ---------- */
 function renderFilters(){
-  var wrap = document.getElementById('filters');
-  var all = ["Усі"].concat(CATEGORIES, ["Новинки"]);
-  wrap.innerHTML = all.map(function(c){
-    return '<button type="button" class="filter-btn ' + (c===activeFilter?'active':'') + '" onclick="filterCategory(\'' + c.replace(/'/g,"\\'") + '\')">' + c + '</button>';
-  }).join('');
+  const wrap = document.getElementById('filters');
+  const all = ["Усі"].concat(CATEGORIES, ["Новинки"]);
+  wrap.innerHTML = all.map(c =>
+    `<button type="button" class="filter-btn ${c===activeFilter?'active':''}" onclick="filterCategory('${c.replace(/'/g,"\\'")}')">${c}</button>`
+  ).join('');
 }
-
-function filterCategory(cat){
+window.filterCategory = function(cat){
   activeFilter = cat;
   renderFilters();
   renderGrid();
-  var el = document.getElementById('catalog');
-  if(el) el.scrollIntoView({behavior:'smooth'});
-}
+  document.getElementById('catalog')?.scrollIntoView({behavior:'smooth'});
+};
 
 function renderGrid(){
-  var grid = document.getElementById('grid');
-  var list = products;
-  if(activeFilter !== "Усі"){
-    list = activeFilter === "Новинки" ? products.filter(function(p){return p.isNew;}) : products.filter(function(p){return p.category===activeFilter;});
+  const grid = document.getElementById('grid');
+  let list = products;
+  if (activeFilter !== "Усі") {
+    list = activeFilter === "Новинки" ? products.filter(p=>p.isNew) : products.filter(p=>p.category===activeFilter);
   }
-  if(list.length === 0){
+  if (list.length === 0) {
     grid.innerHTML = '<div class="empty-state">Тут поки немає фото. Додайте перше через адмін-панель ✦</div>';
     return;
   }
-  grid.innerHTML = list.map(function(p){
-    return '<div class="card">' +
-      (p.isNew ? '<span class="badge-new">Новинка</span>' : '') +
-      '<div class="thumb"><img src="' + p.img + '" alt="' + p.category + '"></div>' +
-      '<button type="button" class="card-del" onclick="deleteProduct(' + p.id + ')">Видалити</button>' +
-    '</div>';
-  }).join('');
+  grid.innerHTML = list.map(p => `
+    <div class="card">
+      ${p.isNew ? '<span class="badge-new">Новинка</span>' : ''}
+      <div class="thumb" onclick="openLightbox('${p.id}')"><img src="${p.imageUrl}" alt="${p.category}" loading="lazy"></div>
+      <button type="button" class="card-del" onclick="deleteProduct(event,'${p.id}')">Видалити</button>
+    </div>`).join('');
 }
 
-function deleteProduct(id){
-  if(!confirm('Видалити це фото?')) return;
-  products = products.filter(function(p){ return p.id !== id; });
-  storageSet(products);
-  renderGrid();
+window.deleteProduct = async function(e, id){
+  e.stopPropagation();
+  if (!confirm('Видалити це фото?')) return;
+  try{
+    await deleteDoc(doc(db, "products", id));
+  }catch(err){
+    alert('Не вдалось видалити: ' + err.message);
+  }
+};
+
+/* ---------- квіклук фото + кошик ---------- */
+window.openLightbox = function(id){
+  lbProduct = products.find(p => p.id === id);
+  if (!lbProduct) return;
+  lbQty = 1;
+  document.getElementById('lbImg').src = lbProduct.imageUrl;
+  document.getElementById('lbCat').textContent = lbProduct.category;
+  document.getElementById('lbNew').style.display = lbProduct.isNew ? 'inline-block' : 'none';
+  document.getElementById('lbQty').textContent = lbQty;
+  document.getElementById('lightboxOverlay').classList.add('show');
+};
+window.lbQtyChange = function(d){
+  lbQty = Math.max(1, lbQty + d);
+  document.getElementById('lbQty').textContent = lbQty;
+};
+window.addToCartFromLightbox = function(){
+  if (!lbProduct) return;
+  const existing = cart.find(c => c.id === lbProduct.id);
+  if (existing) existing.qty += lbQty;
+  else cart.push({ id: lbProduct.id, category: lbProduct.category, imageUrl: lbProduct.imageUrl, qty: lbQty });
+  updateCartBadge();
+  closeOverlayFn('lightboxOverlay');
+  openCart();
+};
+
+/* ---------- кошик ---------- */
+function updateCartBadge(){
+  const count = cart.reduce((s,c)=>s+c.qty,0);
+  const badge = document.getElementById('cartBadge');
+  badge.textContent = count;
+  badge.classList.toggle('show', count > 0);
 }
+window.openCart = function(){
+  renderCartView();
+  document.getElementById('cartPanel').classList.add('open');
+  document.getElementById('cartScrim').classList.add('show');
+};
+window.closeCart = function(){
+  document.getElementById('cartPanel').classList.remove('open');
+  document.getElementById('cartScrim').classList.remove('show');
+};
+window.removeFromCart = function(id){
+  cart = cart.filter(c => c.id !== id);
+  updateCartBadge();
+  renderCartView();
+};
+window.cartQtyChange = function(id, d){
+  const item = cart.find(c => c.id === id);
+  if (!item) return;
+  item.qty = Math.max(1, item.qty + d);
+  updateCartBadge();
+  renderCartView();
+};
+
+function renderCartView(){
+  document.getElementById('cartTitle').textContent = 'Кошик';
+  const body = document.getElementById('cartBody');
+  const foot = document.getElementById('cartFoot');
+  if (cart.length === 0) {
+    body.innerHTML = '<div class="cart-empty">Кошик порожній.<br>Оберіть кульчики в каталозі ✦</div>';
+    foot.innerHTML = '';
+    return;
+  }
+  body.innerHTML = cart.map(c => `
+    <div class="cart-item">
+      <img src="${c.imageUrl}" alt="${c.category}">
+      <div class="cart-item-info">
+        <div class="cart-item-cat">${c.category}</div>
+        <div class="cart-item-controls">
+          <div class="qty-stepper">
+            <button type="button" onclick="cartQtyChange('${c.id}',-1)">−</button>
+            <span>${c.qty}</span>
+            <button type="button" onclick="cartQtyChange('${c.id}',1)">+</button>
+          </div>
+          <button type="button" class="cart-item-remove" onclick="removeFromCart('${c.id}')">Прибрати</button>
+        </div>
+      </div>
+    </div>`).join('');
+  const totalCount = cart.reduce((s,c)=>s+c.qty,0);
+  foot.innerHTML = `
+    <div class="cart-total"><span>Всього кульчиків</span><b>${totalCount}</b></div>
+    <button type="button" class="btn-gold" onclick="showCheckoutForm()">Оформити замовлення</button>`;
+}
+
+/* ---------- форма замовлення ---------- */
+window.showCheckoutForm = function(){
+  document.getElementById('cartTitle').textContent = 'Оформлення замовлення';
+  const body = document.getElementById('cartBody');
+  const foot = document.getElementById('cartFoot');
+  body.innerHTML = `
+    <div class="field"><label>Прізвище</label><input type="text" id="ordLast"></div>
+    <div class="field"><label>Ім'я</label><input type="text" id="ordFirst"></div>
+    <div class="field"><label>По батькові (необов'язково)</label><input type="text" id="ordMiddle"></div>
+    <div class="field"><label>Телефон</label><input type="tel" id="ordPhone" placeholder="+380..."></div>
+    <div class="field"><label>Місто (Нова Пошта)</label><input type="text" id="ordCity"></div>
+    <div class="field"><label>Відділення / поштомат Нової Пошти</label><input type="text" id="ordBranch"></div>
+    <div class="field"><label>Коментар (необов'язково)</label><textarea id="ordComment"></textarea></div>
+    <div class="msg" id="ordMsg"></div>`;
+  foot.innerHTML = `
+    <button type="button" class="btn-gold" id="ordSubmitBtn" onclick="submitOrder()">Підтвердити замовлення</button>
+    <button type="button" class="btn-ghost" onclick="renderCartView()">Назад в кошик</button>`;
+};
+
+window.submitOrder = async function(){
+  const last = document.getElementById('ordLast').value.trim();
+  const first = document.getElementById('ordFirst').value.trim();
+  const middle = document.getElementById('ordMiddle').value.trim();
+  const phone = document.getElementById('ordPhone').value.trim();
+  const city = document.getElementById('ordCity').value.trim();
+  const branch = document.getElementById('ordBranch').value.trim();
+  const comment = document.getElementById('ordComment').value.trim();
+  const msgEl = document.getElementById('ordMsg');
+
+  if (!last || !first || !phone || !city || !branch) {
+    msgEl.textContent = 'Заповніть, будь ласка, обов\'язкові поля: прізвище, ім\'я, телефон, місто, відділення';
+    return;
+  }
+  msgEl.textContent = '';
+  const btn = document.getElementById('ordSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Надсилаємо...';
+
+  const itemsText = cart.map(c => `${c.category} × ${c.qty}`).join(', ');
+  const orderData = {
+    lastName: last, firstName: first, middleName: middle,
+    phone, city, branch, comment,
+    items: cart.map(c => ({ category: c.category, qty: c.qty })),
+    createdAt: serverTimestamp()
+  };
+
+  try{
+    await addDoc(collection(db, "orders"), orderData);
+
+    if (window.emailjs && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID) {
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_email: ORDER_EMAIL,
+        customer_name: `${last} ${first} ${middle}`.trim(),
+        phone, city, branch, comment,
+        items: itemsText
+      });
+    }
+
+    document.getElementById('cartTitle').textContent = 'Готово';
+    document.getElementById('cartBody').innerHTML = `
+      <div class="order-success">
+        <div class="ok-icon">✓</div>
+        <h4>Замовлення прийнято</h4>
+        <p>Дякуємо, ${first}! Ми зв'яжемось з вами за номером ${phone} для підтвердження.</p>
+      </div>`;
+    document.getElementById('cartFoot').innerHTML = `<button type="button" class="btn-ghost" onclick="closeCart()">Закрити</button>`;
+    cart = [];
+    updateCartBadge();
+  }catch(err){
+    msgEl.textContent = 'Не вдалось надіслати замовлення. Спробуйте ще раз або напишіть нам у Telegram.';
+    btn.disabled = false;
+    btn.textContent = 'Підтвердити замовлення';
+    console.error(err);
+  }
+};
 
 /* ---------- адмін-вхід ---------- */
-function openAdminGate(){
-  if(document.body.classList.contains('admin-mode')){ openAddForm(); return; }
+window.openAdminGate = function(){
+  if (document.body.classList.contains('admin-mode')) { openAddForm(); return; }
   document.getElementById('gateMsg').textContent = '';
   document.getElementById('gatePassword').value = '';
   document.getElementById('gateOverlay').classList.add('show');
-}
-function closeOverlay(id){ document.getElementById(id).classList.remove('show'); }
-function checkPassword(){
-  var val = document.getElementById('gatePassword').value;
-  if(val === ADMIN_PASSWORD){
+};
+function closeOverlayFn(id){ document.getElementById(id).classList.remove('show'); }
+window.closeOverlay = closeOverlayFn;
+window.checkPassword = function(){
+  const val = document.getElementById('gatePassword').value;
+  if (val === ADMIN_PASSWORD) {
     document.body.classList.add('admin-mode');
-    closeOverlay('gateOverlay');
+    closeOverlayFn('gateOverlay');
     openAddForm();
-  }else{
+  } else {
     document.getElementById('gateMsg').textContent = 'Невірний пароль, спробуйте ще раз';
   }
-}
-function logoutAdmin(){ document.body.classList.remove('admin-mode'); }
+};
+window.logoutAdmin = function(){ document.body.classList.remove('admin-mode'); };
 
-/* ---------- форма додавання фото ---------- */
-var pendingImg = null;
-function openAddForm(){
-  var sel = document.getElementById('fCategory');
-  sel.innerHTML = CATEGORIES.map(function(c){ return '<option value="' + c + '">' + c + '</option>'; }).join('');
-  pendingImg = null;
-  document.getElementById('thumbPreview').innerHTML = 'фото не обрано';
+/* ---------- масове додавання фото ---------- */
+window.openAddForm = function(){
+  const sel = document.getElementById('fCategory');
+  sel.innerHTML = CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+  document.getElementById('thumbPreview').textContent = 'фото не обрано';
   document.getElementById('fPhoto').value = '';
   document.getElementById('fNew').checked = false;
   document.getElementById('formMsg').textContent = '';
+  document.getElementById('formProgress').textContent = '';
   document.getElementById('formOverlay').classList.add('show');
-}
-document.addEventListener('change', function(e){
-  if(e.target && e.target.id === 'fPhoto'){
-    var file = e.target.files && e.target.files[0];
-    if(!file) return;
-    var reader = new FileReader();
-    reader.onload = function(ev){
-      pendingImg = ev.target.result;
-      document.getElementById('thumbPreview').innerHTML = '<img src="' + pendingImg + '">';
-    };
-    reader.readAsDataURL(file);
+};
+document.addEventListener('change', (e) => {
+  if (e.target && e.target.id === 'fPhoto') {
+    const n = e.target.files ? e.target.files.length : 0;
+    document.getElementById('thumbPreview').textContent = n ? `Обрано фото: ${n}` : 'фото не обрано';
   }
 });
-function addProduct(){
-  var category = document.getElementById('fCategory').value;
-  var isNew = document.getElementById('fNew').checked;
-  if(!pendingImg){
-    document.getElementById('formMsg').textContent = 'Спершу оберіть фото';
-    return;
-  }
-  var product = { id: Date.now(), category: category, img: pendingImg, isNew: isNew };
-  products.unshift(product);
-  storageSet(products);
-  closeOverlay('formOverlay');
-  activeFilter = "Усі";
-  renderFilters();
-  renderGrid();
+
+// стискаємо фото перед завантаженням, щоб база не роздувалась
+function resizeImage(file, maxSize = 1000, quality = 0.82){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e) => { img.src = e.target.result; };
+    reader.onerror = reject;
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > height && width > maxSize) { height *= maxSize / width; width = maxSize; }
+      else if (height > maxSize) { width *= maxSize / height; height = maxSize; }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+    };
+    img.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
-renderFilters();
-renderGrid();
+// завантажує один файл на Cloudinary, повертає посилання на фото
+async function uploadToCloudinary(blob){
+  const form = new FormData();
+  form.append('file', blob);
+  form.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+    method: 'POST', body: form
+  });
+  if (!res.ok) throw new Error('Cloudinary upload failed: ' + res.status);
+  const data = await res.json();
+  return data.secure_url;
+}
+
+window.addProducts = async function(){
+  const files = document.getElementById('fPhoto').files;
+  const category = document.getElementById('fCategory').value;
+  const isNew = document.getElementById('fNew').checked;
+  const msgEl = document.getElementById('formMsg');
+  const progEl = document.getElementById('formProgress');
+  const btn = document.getElementById('uploadBtn');
+
+  if (!files || files.length === 0) {
+    msgEl.textContent = 'Спершу оберіть хоча б одне фото';
+    return;
+  }
+  msgEl.textContent = '';
+  btn.disabled = true;
+  let failed = 0;
+
+  for (let i = 0; i < files.length; i++) {
+    progEl.textContent = `Завантажено ${i} / ${files.length}...`;
+    try{
+      const blob = await resizeImage(files[i]);
+      const url = await uploadToCloudinary(blob);
+      await addDoc(collection(db, "products"), {
+        category, imageUrl: url, isNew, createdAt: serverTimestamp()
+      });
+    }catch(err){
+      failed++;
+      console.error('Помилка завантаження файлу', files[i].name, err);
+    }
+  }
+  progEl.textContent = failed
+    ? `Завантажено ${files.length - failed} / ${files.length}, ${failed} з помилкою`
+    : `Завантажено ${files.length} / ${files.length} ✓`;
+  btn.disabled = false;
+  if (!failed) setTimeout(() => closeOverlayFn('formOverlay'), 700);
+};
 </script>
 </body>
 </html>
