@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- MZSHOP_BUILD_v4_fixedphoto -->
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
@@ -26,6 +27,16 @@
   img{max-width:100%;display:block;}
   .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
 
+  .inapp-banner{display:none;background:var(--gold);color:var(--bg-void);font-size:.76rem;line-height:1.4;padding:10px 16px;text-align:center;position:relative;}
+  .inapp-banner.show{display:block;}
+  .inapp-banner b{font-weight:600;}
+  .inapp-banner .ib-close{position:absolute;top:6px;right:10px;background:transparent;border:none;color:var(--bg-void);font-size:1.1rem;line-height:1;cursor:pointer;padding:4px 8px;}
+  body.compact-mode .hero{padding:34px 0 26px;}
+  body.compact-mode .earring-art{margin-top:22px;}
+  body.compact-mode .catalog{padding:30px 0 20px;}
+  body.compact-mode .section-head{margin-bottom:24px;}
+  body.compact-mode .filters{margin-bottom:26px;}
+
   .chain{display:flex;align-items:center;justify-content:center;gap:10px;height:20px;opacity:.85;}
   .chain span{width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.55;}
   .chain span:nth-child(3n){opacity:1;width:8px;height:8px;box-shadow:0 0 8px rgba(201,169,97,.6);}
@@ -40,9 +51,11 @@
   .nav-links a:hover{color:var(--gold-bright);}
   .nav-links a.active{color:var(--gold);border-color:var(--gold);}
   .nav-right{display:flex;align-items:center;gap:12px;}
-  .cart-btn{position:relative;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--cream);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.25s;flex-shrink:0;}
-  .cart-btn:hover{border-color:var(--gold);color:var(--gold-bright);}
-  .cart-badge{position:absolute;top:-6px;right:-6px;background:var(--gold);color:var(--bg-void);font-size:.62rem;font-weight:600;min-width:18px;height:18px;border-radius:10px;display:none;align-items:center;justify-content:center;padding:0 4px;}
+  .cart-btn{position:relative;height:40px;padding:0 14px 0 12px;border-radius:20px;border:1px solid var(--gold);background:rgba(201,169,97,.1);color:var(--cream);display:flex;align-items:center;gap:8px;cursor:pointer;transition:.25s;flex-shrink:0;}
+  .cart-btn:hover{background:var(--gold);color:var(--bg-void);}
+  .cart-btn .cart-label{font-size:.76rem;letter-spacing:1px;text-transform:uppercase;display:none;}
+  @media(min-width:640px){ .cart-btn .cart-label{display:inline;} }
+  .cart-badge{position:absolute;top:-7px;right:-7px;background:var(--gold-bright);color:var(--bg-void);font-size:.65rem;font-weight:700;min-width:19px;height:19px;border-radius:10px;display:none;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--bg-void);}
   .cart-badge.show{display:flex;}
   @media(max-width:640px){ .nav-links{display:none;} }
 
@@ -83,12 +96,15 @@
   .filter-btn:hover{border-color:var(--gold);color:var(--gold-bright);}
   .filter-btn.active{background:var(--gold);border-color:var(--gold);color:var(--bg-void);font-weight:500;}
 
-  /* менші фото — 4+ в ряд */
+  /* менші фото на мобільному — 4+ в ряд; на десктопі фото трохи більші, щоб не губились на широкому екрані */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}
+  @media(min-width:900px){ .grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:20px;} }
   .card{background:var(--bg-surface);border:1px solid var(--line);border-radius:4px;overflow:hidden;transition:.3s;position:relative;}
   .card:hover{transform:translateY(-4px);border-color:var(--gold);}
   .thumb{aspect-ratio:4/5;background:var(--bg-surface-2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;cursor:pointer;}
   .thumb img{width:100%;height:100%;object-fit:cover;}
+  .quick-add{position:absolute;bottom:8px;right:8px;z-index:3;width:34px;height:34px;border-radius:50%;border:1px solid var(--gold);background:rgba(11,11,12,.75);backdrop-filter:blur(2px);color:var(--gold-bright);font-size:1.2rem;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s;}
+  .quick-add:hover{background:var(--gold);color:var(--bg-void);}
   .badge-new{position:absolute;top:8px;left:8px;background:var(--gold);color:var(--bg-void);font-size:.6rem;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:12px;font-weight:500;z-index:2;}
   .empty-state{grid-column:1/-1;text-align:center;padding:60px 0;color:var(--muted);font-size:.9rem;}
 
@@ -125,11 +141,11 @@
   .modal-thumb-preview img{width:100%;height:100%;object-fit:cover;}
   .msg{font-size:.75rem;color:#e0a0a0;margin:-8px 0 12px;min-height:14px;}
   .progress-msg{font-size:.75rem;color:var(--gold-bright);margin:-8px 0 12px;min-height:14px;}
-  /* ---- квіклук фото + кнопка в кошик ---- */
-  .lb-modal{max-width:380px;padding:0;overflow:hidden;}
-  .lb-photo{width:100%;aspect-ratio:4/5;background:var(--bg-surface-2);overflow:hidden;}
-  .lb-photo img{width:100%;height:100%;object-fit:cover;}
-  .lb-body{padding:26px;}
+  /* ---- квіклук фото + кнопка в кошик (однаковий простий макет на всіх екранах, фіксована висота фото) ---- */
+  .lb-modal{max-width:400px;padding:0;}
+  .lb-photo{width:100%;height:190px;background:var(--bg-surface-2);overflow:hidden;border-radius:6px 6px 0 0;}
+  .lb-photo img{width:100%;height:100%;object-fit:contain;}
+  .lb-body{padding:20px 26px 26px;}
   .lb-cat{font-family:'Cormorant Garamond';font-style:italic;font-size:1.3rem;color:var(--gold-bright);margin-bottom:4px;}
   .lb-new{display:inline-block;margin-bottom:14px;font-size:.65rem;letter-spacing:1px;text-transform:uppercase;color:var(--gold);}
   .qty-row{display:flex;align-items:center;justify-content:space-between;margin:18px 0;}
@@ -168,6 +184,23 @@
 </head>
 <body>
 
+<div class="inapp-banner" id="inappBanner">
+  <b>Це вбудований браузер Facebook/Instagram</b> — сайт може виглядати гірше, ніж у звичайному браузері.
+  Натисніть значок «⋮» або «···» вгорі та оберіть «Відкрити в браузері» для кращого перегляду.
+  <button type="button" class="ib-close" onclick="document.getElementById('inappBanner').classList.remove('show')" aria-label="Закрити">×</button>
+</div>
+<script>
+  (function(){
+    var ua = navigator.userAgent || '';
+    var isInApp = /FBAN|FBAV|Instagram|Messenger/i.test(ua);
+    if (isInApp) {
+      document.body.classList.add('compact-mode');
+      var b = document.getElementById('inappBanner');
+      if (b) b.classList.add('show');
+    }
+  })();
+</script>
+
 <header>
   <div class="wrap nav">
     <div class="logo"><b>Mz</b> shop</div>
@@ -179,6 +212,7 @@
     <div class="nav-right">
       <button type="button" class="cart-btn" onclick="openCart()" aria-label="Кошик">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 6h15l-1.5 9h-12L6 6zM6 6L5 3H2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.4" fill="currentColor"/><circle cx="17" cy="20" r="1.4" fill="currentColor"/></svg>
+        <span class="cart-label">Кошик</span>
         <span class="cart-badge" id="cartBadge">0</span>
       </button>
     </div>
@@ -276,7 +310,16 @@ const db = getFirestore(app);
 const CATEGORIES = ["Англійська застібка","Французька застібка","Сережки-кільця","Застібка кільце","Перетяжки","Цвяшки"];
 let products = [];
 let activeFilter = "Усі";
-let cart = []; // {id, category, imageUrl, qty}
+
+/* ---------- кошик, спільний для всіх сторінок сайту (зберігається в браузері) ---------- */
+const CART_KEY = 'mzshop_cart';
+function loadCart(){
+  try{ return JSON.parse(localStorage.getItem(CART_KEY)) || []; }catch(e){ return []; }
+}
+function saveCart(){
+  try{ localStorage.setItem(CART_KEY, JSON.stringify(cart)); }catch(e){}
+}
+let cart = loadCart(); // {id, category, imageUrl, qty}
 let lbProduct = null;
 let lbQty = 1;
 
@@ -320,8 +363,19 @@ function renderGrid(){
     <div class="card">
       ${p.isNew ? '<span class="badge-new">Новинка</span>' : ''}
       <div class="thumb" onclick="openLightbox('${p.id}')"><img src="${p.imageUrl}" alt="${p.category}" loading="lazy"></div>
+      <button type="button" class="quick-add" onclick="event.stopPropagation();quickAddToCart('${p.id}')" aria-label="Додати в кошик">+</button>
     </div>`).join('');
 }
+
+window.quickAddToCart = function(id){
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  const existing = cart.find(c => c.id === id);
+  if (existing) existing.qty += 1;
+  else cart.push({ id: p.id, category: p.category, imageUrl: p.imageUrl, qty: 1 });
+  saveCart();
+  updateCartBadge();
+};
 
 /* ---------- квіклук фото + кошик ---------- */
 window.openLightbox = function(id){
@@ -343,6 +397,7 @@ window.addToCartFromLightbox = function(){
   const existing = cart.find(c => c.id === lbProduct.id);
   if (existing) existing.qty += lbQty;
   else cart.push({ id: lbProduct.id, category: lbProduct.category, imageUrl: lbProduct.imageUrl, qty: lbQty });
+  saveCart();
   updateCartBadge();
   closeOverlayFn('lightboxOverlay');
   openCart();
@@ -352,9 +407,11 @@ window.addToCartFromLightbox = function(){
 function updateCartBadge(){
   const count = cart.reduce((s,c)=>s+c.qty,0);
   const badge = document.getElementById('cartBadge');
+  if (!badge) return;
   badge.textContent = count;
   badge.classList.toggle('show', count > 0);
 }
+updateCartBadge(); // показати бейдж одразу при відкритті сторінки, якщо в кошику вже щось є
 window.openCart = function(){
   renderCartView();
   document.getElementById('cartPanel').classList.add('open');
@@ -366,6 +423,7 @@ window.closeCart = function(){
 };
 window.removeFromCart = function(id){
   cart = cart.filter(c => c.id !== id);
+  saveCart();
   updateCartBadge();
   renderCartView();
 };
@@ -373,6 +431,7 @@ window.cartQtyChange = function(id, d){
   const item = cart.find(c => c.id === id);
   if (!item) return;
   item.qty = Math.max(1, item.qty + d);
+  saveCart();
   updateCartBadge();
   renderCartView();
 };
@@ -573,6 +632,7 @@ ${deliveryText}
       </div>`;
     document.getElementById('cartFoot').innerHTML = `<button type="button" class="btn-ghost" onclick="closeCart()">Закрити</button>`;
     cart = [];
+    saveCart();
     updateCartBadge();
   }catch(err){
     msgEl.textContent = 'Не вдалось надіслати замовлення. Спробуйте ще раз або напишіть нам у Telegram.';

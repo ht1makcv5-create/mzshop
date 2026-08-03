@@ -23,7 +23,15 @@
   body{background:var(--bg-void);color:var(--cream);font-family:'Jost',sans-serif;font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased;}
   h1,h2,h3,.serif{font-family:'Cormorant Garamond',serif;}
   a{color:inherit;text-decoration:none;}
+  img{max-width:100%;display:block;}
   .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+
+  .inapp-banner{display:none;background:var(--gold);color:var(--bg-void);font-size:.76rem;line-height:1.4;padding:10px 16px;text-align:center;position:relative;}
+  .inapp-banner.show{display:block;}
+  .inapp-banner b{font-weight:600;}
+  .inapp-banner .ib-close{position:absolute;top:6px;right:10px;background:transparent;border:none;color:var(--bg-void);font-size:1.1rem;line-height:1;cursor:pointer;padding:4px 8px;}
+  body.compact-mode .page-hero{padding:36px 0 20px;}
+  body.compact-mode .tg-hero{padding:20px 0 40px;}
 
   .chain{display:flex;align-items:center;justify-content:center;gap:10px;height:20px;opacity:.85;}
   .chain span{width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.55;}
@@ -31,13 +39,20 @@
   .chain::before,.chain::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);}
 
   header{position:sticky;top:0;z-index:50;background:rgba(11,11,12,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
-  .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0;}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0;gap:18px;}
   .logo{font-size:1.7rem;font-style:italic;font-weight:500;letter-spacing:.5px;color:var(--gold-bright);}
   .logo b{font-style:normal;color:var(--cream);font-weight:400;}
   .nav-links{display:flex;gap:34px;font-size:.82rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
   .nav-links a{padding-bottom:3px;border-bottom:1px solid transparent;transition:.25s;}
   .nav-links a:hover{color:var(--gold-bright);}
   .nav-links a.active{color:var(--gold);border-color:var(--gold);}
+  .nav-right{display:flex;align-items:center;gap:12px;}
+  .cart-btn{position:relative;height:40px;padding:0 14px 0 12px;border-radius:20px;border:1px solid var(--gold);background:rgba(201,169,97,.1);color:var(--cream);display:flex;align-items:center;gap:8px;cursor:pointer;transition:.25s;flex-shrink:0;}
+  .cart-btn:hover{background:var(--gold);color:var(--bg-void);}
+  .cart-btn .cart-label{font-size:.76rem;letter-spacing:1px;text-transform:uppercase;display:none;}
+  @media(min-width:640px){ .cart-btn .cart-label{display:inline;} }
+  .cart-badge{position:absolute;top:-7px;right:-7px;background:var(--gold-bright);color:var(--bg-void);font-size:.65rem;font-weight:700;min-width:19px;height:19px;border-radius:10px;display:none;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--bg-void);}
+  .cart-badge.show{display:flex;}
   @media(max-width:640px){ .nav-links{display:none;} }
 
   .page-hero{padding:80px 0 30px;text-align:center;}
@@ -64,9 +79,72 @@
   .ccard .sub{margin-top:10px;font-size:.72rem;color:var(--muted);letter-spacing:.5px;}
 
   footer{padding:20px 0 40px;text-align:center;font-size:.72rem;color:#4a4740;letter-spacing:1px;}
+
+  /* ---- кошик справа (як на сторінці каталогу) ---- */
+  .field{margin-bottom:16px;}
+  .delivery-switch{display:flex;gap:8px;}
+  .dswitch-btn{flex:1;padding:11px 8px;border:1px solid var(--line);border-radius:20px;background:transparent;color:var(--muted);font-size:.78rem;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:.25s;}
+  .dswitch-btn.active{background:var(--gold);color:var(--bg-void);border-color:var(--gold);}
+  .field label{display:block;font-size:.72rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+  .field input[type=text],.field input[type=tel],.field select,.field textarea{width:100%;background:var(--bg-void);border:1px solid var(--line);color:var(--cream);padding:11px 13px;border-radius:3px;font-family:'Jost';font-size:.9rem;}
+  .field textarea{resize:vertical;min-height:64px;}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--gold);}
+  .btn-gold{width:100%;background:var(--gold);color:var(--bg-void);border:none;padding:13px;border-radius:3px;font-weight:500;letter-spacing:1px;text-transform:uppercase;font-size:.8rem;cursor:pointer;transition:.25s;}
+  .btn-gold:hover{background:var(--gold-bright);}
+  .btn-gold:disabled{opacity:.5;cursor:default;}
+  .btn-ghost{width:100%;background:transparent;color:var(--muted);border:1px solid var(--line);padding:11px;border-radius:3px;margin-top:10px;font-size:.78rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+  .btn-ghost:hover{color:var(--cream);border-color:var(--muted);}
+  .msg{font-size:.75rem;color:#e0a0a0;margin:-8px 0 12px;min-height:14px;}
+
+  .cart-scrim{position:fixed;inset:0;background:rgba(5,5,5,.6);z-index:190;display:none;}
+  .cart-scrim.show{display:block;}
+  .cart-panel{position:fixed;top:0;right:-440px;width:400px;max-width:92vw;height:100%;background:var(--bg-surface);border-left:1px solid var(--line);z-index:200;transition:right .35s ease;display:flex;flex-direction:column;}
+  .cart-panel.open{right:0;}
+  .cart-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px;border-bottom:1px solid var(--line);}
+  .cart-head h3{font-family:'Cormorant Garamond';font-style:italic;font-size:1.5rem;color:var(--gold-bright);}
+  .cart-close{background:transparent;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;line-height:1;}
+  .cart-close:hover{color:var(--cream);}
+  .cart-body{flex:1;overflow-y:auto;padding:18px 24px;}
+  .cart-empty{color:var(--muted);font-size:.88rem;text-align:center;padding:60px 10px;}
+  .cart-empty a{color:var(--gold-bright);border-bottom:1px solid var(--gold);}
+  .cart-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);}
+  .cart-item img{width:58px;height:58px;object-fit:cover;border-radius:4px;flex-shrink:0;}
+  .cart-item-info{flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px;}
+  .cart-item-cat{font-family:'Cormorant Garamond';font-style:italic;font-size:1.05rem;color:var(--cream);}
+  .cart-item-controls{display:flex;align-items:center;justify-content:space-between;}
+  .cart-item-remove{background:transparent;border:none;color:var(--muted);font-size:.7rem;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;}
+  .cart-item-remove:hover{color:#e0a0a0;}
+  .qty-stepper{display:flex;align-items:center;gap:14px;background:var(--bg-void);border:1px solid var(--line);border-radius:20px;padding:6px 6px;}
+  .qty-stepper button{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--cream);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .qty-stepper button:hover{border-color:var(--gold);color:var(--gold-bright);}
+  .qty-stepper span{min-width:16px;text-align:center;font-size:.9rem;}
+  .cart-foot{padding:20px 24px;border-top:1px solid var(--line);}
+  .cart-total{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted);margin-bottom:16px;}
+  .cart-total b{color:var(--cream);font-weight:500;}
+  .order-success{text-align:center;padding:50px 14px;}
+  .order-success .ok-icon{width:52px;height:52px;border-radius:50%;border:1px solid var(--gold);color:var(--gold);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:1.4rem;}
+  .order-success h4{font-family:'Cormorant Garamond';font-style:italic;font-size:1.4rem;color:var(--gold-bright);margin-bottom:10px;}
+  .order-success p{color:var(--muted);font-size:.85rem;}
 </style>
 </head>
 <body>
+
+<div class="inapp-banner" id="inappBanner">
+  <b>Це вбудований браузер Facebook/Instagram</b> — сайт може виглядати гірше, ніж у звичайному браузері.
+  Натисніть значок «⋮» або «···» вгорі та оберіть «Відкрити в браузері» для кращого перегляду.
+  <button type="button" class="ib-close" onclick="document.getElementById('inappBanner').classList.remove('show')" aria-label="Закрити">×</button>
+</div>
+<script>
+  (function(){
+    var ua = navigator.userAgent || '';
+    var isInApp = /FBAN|FBAV|Instagram|Messenger/i.test(ua);
+    if (isInApp) {
+      document.body.classList.add('compact-mode');
+      var b = document.getElementById('inappBanner');
+      if (b) b.classList.add('show');
+    }
+  })();
+</script>
 
 <header>
   <div class="wrap nav">
@@ -76,7 +154,13 @@
       <a href="index.html#catalog">Новинки</a>
       <a href="contacts.html" class="active">Контакти</a>
     </nav>
-    <div style="width:1px"></div>
+    <div class="nav-right">
+      <button type="button" class="cart-btn" onclick="openCart()" aria-label="Кошик">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 6h15l-1.5 9h-12L6 6zM6 6L5 3H2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.4" fill="currentColor"/><circle cx="17" cy="20" r="1.4" fill="currentColor"/></svg>
+        <span class="cart-label">Кошик</span>
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -130,6 +214,268 @@
 </section>
 
 <div class="chain"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<!-- кошик / оформлення замовлення -->
+<div class="cart-scrim" id="cartScrim" onclick="closeCart()"></div>
+<aside class="cart-panel" id="cartPanel">
+  <div class="cart-head">
+    <h3 id="cartTitle">Кошик</h3>
+    <button type="button" class="cart-close" onclick="closeCart()">×</button>
+  </div>
+  <div class="cart-body" id="cartBody"></div>
+  <div class="cart-foot" id="cartFoot"></div>
+</aside>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { firebaseConfig, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_IDS } from "./firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* ---------- кошик, спільний з каталогом (зберігається в браузері) ---------- */
+const CART_KEY = 'mzshop_cart';
+function loadCart(){
+  try{ return JSON.parse(localStorage.getItem(CART_KEY)) || []; }catch(e){ return []; }
+}
+function saveCart(){
+  try{ localStorage.setItem(CART_KEY, JSON.stringify(cart)); }catch(e){}
+}
+let cart = loadCart();
+
+function updateCartBadge(){
+  const count = cart.reduce((s,c)=>s+c.qty,0);
+  const badge = document.getElementById('cartBadge');
+  if (!badge) return;
+  badge.textContent = count;
+  badge.classList.toggle('show', count > 0);
+}
+updateCartBadge();
+
+window.openCart = function(){
+  renderCartView();
+  document.getElementById('cartPanel').classList.add('open');
+  document.getElementById('cartScrim').classList.add('show');
+};
+window.closeCart = function(){
+  document.getElementById('cartPanel').classList.remove('open');
+  document.getElementById('cartScrim').classList.remove('show');
+};
+window.removeFromCart = function(id){
+  cart = cart.filter(c => c.id !== id);
+  saveCart();
+  updateCartBadge();
+  renderCartView();
+};
+window.cartQtyChange = function(id, d){
+  const item = cart.find(c => c.id === id);
+  if (!item) return;
+  item.qty = Math.max(1, item.qty + d);
+  saveCart();
+  updateCartBadge();
+  renderCartView();
+};
+
+function renderCartView(){
+  document.getElementById('cartTitle').textContent = 'Кошик';
+  const body = document.getElementById('cartBody');
+  const foot = document.getElementById('cartFoot');
+  if (cart.length === 0) {
+    body.innerHTML = '<div class="cart-empty">Кошик порожній.<br>Оберіть сережки у <a href="index.html#catalog">каталозі</a> ✦</div>';
+    foot.innerHTML = '';
+    return;
+  }
+  body.innerHTML = cart.map(c => `
+    <div class="cart-item">
+      <img src="${c.imageUrl}" alt="${c.category}">
+      <div class="cart-item-info">
+        <div class="cart-item-cat">${c.category}</div>
+        <div class="cart-item-controls">
+          <div class="qty-stepper">
+            <button type="button" onclick="cartQtyChange('${c.id}',-1)">−</button>
+            <span>${c.qty}</span>
+            <button type="button" onclick="cartQtyChange('${c.id}',1)">+</button>
+          </div>
+          <button type="button" class="cart-item-remove" onclick="removeFromCart('${c.id}')">Прибрати</button>
+        </div>
+      </div>
+    </div>`).join('');
+  const totalCount = cart.reduce((s,c)=>s+c.qty,0);
+  foot.innerHTML = `
+    <div class="cart-total"><span>Всього сережок</span><b>${totalCount}</b></div>
+    <button type="button" class="btn-gold" onclick="showCheckoutForm()">Оформити замовлення</button>`;
+}
+
+/* ---------- форма замовлення (як у каталозі) ---------- */
+let ordMethod = 'nova';
+
+window.showCheckoutForm = function(){
+  document.getElementById('cartTitle').textContent = 'Оформлення замовлення';
+  const body = document.getElementById('cartBody');
+  const foot = document.getElementById('cartFoot');
+  ordMethod = 'nova';
+  body.innerHTML = `
+    <div class="field"><label>Прізвище</label><input type="text" id="ordLast"></div>
+    <div class="field"><label>Ім'я</label><input type="text" id="ordFirst"></div>
+    <div class="field"><label>По батькові (необов'язково)</label><input type="text" id="ordMiddle"></div>
+    <div class="field"><label>Телефон</label><input type="tel" id="ordPhone" placeholder="+380..."></div>
+    <div class="field">
+      <label>Спосіб доставки</label>
+      <div class="delivery-switch">
+        <button type="button" class="dswitch-btn active" id="dswNova" onclick="setDeliveryMethod('nova')">Нова Пошта</button>
+        <button type="button" class="dswitch-btn" id="dswUkr" onclick="setDeliveryMethod('ukr')">Укрпошта</button>
+      </div>
+    </div>
+    <div id="deliveryFields"></div>
+    <div class="field"><label>Коментар (необов'язково)</label><textarea id="ordComment"></textarea></div>
+    <div class="msg" id="ordMsg"></div>`;
+  renderDeliveryFields();
+  foot.innerHTML = `
+    <button type="button" class="btn-gold" id="ordSubmitBtn" onclick="submitOrder()">Підтвердити замовлення</button>
+    <button type="button" class="btn-ghost" onclick="renderCartView()">Назад в кошик</button>`;
+};
+
+async function sendOrderPhotos(chatId, items){
+  if (!items || !items.length) return;
+  if (items.length === 1) {
+    const it = items[0];
+    try{
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, photo: it.imageUrl, caption: `${it.category} × ${it.qty}` })
+      });
+    }catch(err){ console.error('Не вдалось надіслати фото', err); }
+    return;
+  }
+  for (let i = 0; i < items.length; i += 10) {
+    const chunk = items.slice(i, i + 10);
+    const media = chunk.map(it => ({ type: 'photo', media: it.imageUrl, caption: `${it.category} × ${it.qty}` }));
+    try{
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMediaGroup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, media })
+      });
+    }catch(err){ console.error('Не вдалось надіслати альбом фото', err); }
+  }
+}
+
+function renderDeliveryFields(){
+  const el = document.getElementById('deliveryFields');
+  if (!el) return;
+  if (ordMethod === 'nova') {
+    el.innerHTML = `
+      <div class="field"><label>Місто (Нова Пошта)</label><input type="text" id="ordCity"></div>
+      <div class="field"><label>Відділення / поштомат Нової Пошти</label><input type="text" id="ordBranch"></div>`;
+  } else {
+    el.innerHTML = `
+      <div class="field"><label>Індекс</label><input type="text" id="ordIndex"></div>
+      <div class="field"><label>Область</label><input type="text" id="ordRegion"></div>
+      <div class="field"><label>Район</label><input type="text" id="ordDistrict"></div>
+      <div class="field"><label>Населений пункт</label><input type="text" id="ordSettlement"></div>`;
+  }
+}
+
+window.setDeliveryMethod = function(method){
+  ordMethod = method;
+  const bNova = document.getElementById('dswNova');
+  const bUkr = document.getElementById('dswUkr');
+  if (bNova) bNova.classList.toggle('active', method === 'nova');
+  if (bUkr) bUkr.classList.toggle('active', method === 'ukr');
+  renderDeliveryFields();
+};
+
+window.submitOrder = async function(){
+  const last = document.getElementById('ordLast').value.trim();
+  const first = document.getElementById('ordFirst').value.trim();
+  const middle = document.getElementById('ordMiddle').value.trim();
+  const phone = document.getElementById('ordPhone').value.trim();
+  const comment = document.getElementById('ordComment').value.trim();
+  const msgEl = document.getElementById('ordMsg');
+
+  let delivery = {};
+  let deliveryText = '';
+
+  if (ordMethod === 'nova') {
+    const city = document.getElementById('ordCity').value.trim();
+    const branch = document.getElementById('ordBranch').value.trim();
+    if (!last || !first || !phone || !city || !branch) {
+      msgEl.textContent = 'Заповніть, будь ласка, обов\'язкові поля: прізвище, ім\'я, телефон, місто, відділення';
+      return;
+    }
+    delivery = { method: 'Нова Пошта', city, branch };
+    deliveryText = `📍 Нова Пошта: ${city}, відділення: ${branch}`;
+  } else {
+    const index = document.getElementById('ordIndex').value.trim();
+    const region = document.getElementById('ordRegion').value.trim();
+    const district = document.getElementById('ordDistrict').value.trim();
+    const settlement = document.getElementById('ordSettlement').value.trim();
+    if (!last || !first || !phone || !index || !region || !district || !settlement) {
+      msgEl.textContent = 'Заповніть, будь ласка, обов\'язкові поля: прізвище, ім\'я, телефон, індекс, область, район, населений пункт';
+      return;
+    }
+    delivery = { method: 'Укрпошта', index, region, district, settlement };
+    deliveryText = `📍 Укрпошта: ${index}, ${region} обл., ${district} р-н, ${settlement}`;
+  }
+
+  msgEl.textContent = '';
+  const btn = document.getElementById('ordSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Надсилаємо...';
+
+  const itemsText = cart.map(c => `${c.category} × ${c.qty}`).join(', ');
+  const orderData = {
+    lastName: last, firstName: first, middleName: middle,
+    phone, delivery, comment,
+    items: cart.map(c => ({ category: c.category, qty: c.qty })),
+    createdAt: serverTimestamp()
+  };
+
+  try{
+    await addDoc(collection(db, "orders"), orderData);
+
+    const tgText =
+`🛍 Нове замовлення Mz shop
+
+👤 ${last} ${first} ${middle}
+📞 ${phone}
+${deliveryText}
+💬 ${comment || '—'}
+
+Товари: ${itemsText}`;
+
+    if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_IDS && TELEGRAM_CHAT_IDS.length) {
+      await Promise.all(TELEGRAM_CHAT_IDS.map(chatId =>
+        fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, text: tgText })
+        })
+      ));
+      await Promise.all(TELEGRAM_CHAT_IDS.map(chatId => sendOrderPhotos(chatId, cart)));
+    }
+
+    document.getElementById('cartTitle').textContent = 'Готово';
+    document.getElementById('cartBody').innerHTML = `
+      <div class="order-success">
+        <div class="ok-icon">✓</div>
+        <h4>Замовлення прийнято</h4>
+        <p>Дякуємо, ${first}! Ми зв'яжемось з вами за номером ${phone} для підтвердження.</p>
+      </div>`;
+    document.getElementById('cartFoot').innerHTML = `<button type="button" class="btn-ghost" onclick="closeCart()">Закрити</button>`;
+    cart = [];
+    saveCart();
+    updateCartBadge();
+  }catch(err){
+    msgEl.textContent = 'Не вдалось надіслати замовлення. Спробуйте ще раз або напишіть нам у Telegram.';
+    btn.disabled = false;
+    btn.textContent = 'Підтвердити замовлення';
+    console.error(err);
+  }
+};
+</script>
 
 </body>
 </html>
