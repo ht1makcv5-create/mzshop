@@ -106,6 +106,9 @@
   .modal h3{font-family:'Cormorant Garamond';font-style:italic;font-size:1.6rem;color:var(--gold-bright);margin-bottom:6px;}
   .modal p.hint{color:var(--muted);font-size:.82rem;margin-bottom:22px;}
   .field{margin-bottom:16px;}
+  .delivery-switch{display:flex;gap:8px;}
+  .dswitch-btn{flex:1;padding:11px 8px;border:1px solid var(--line);border-radius:20px;background:transparent;color:var(--muted);font-size:.78rem;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:.25s;}
+  .dswitch-btn.active{background:var(--gold);color:var(--bg-void);border-color:var(--gold);}
   .field label{display:block;font-size:.72rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
   .field input[type=password],.field input[type=text],.field input[type=tel],.field select,.field textarea{width:100%;background:var(--bg-void);border:1px solid var(--line);color:var(--cream);padding:11px 13px;border-radius:3px;font-family:'Jost';font-size:.9rem;}
   .field textarea{resize:vertical;min-height:64px;}
@@ -405,19 +408,29 @@ function renderCartView(){
 }
 
 /* ---------- форма замовлення ---------- */
+let ordMethod = 'nova';
+
 window.showCheckoutForm = function(){
   document.getElementById('cartTitle').textContent = 'Оформлення замовлення';
   const body = document.getElementById('cartBody');
   const foot = document.getElementById('cartFoot');
+  ordMethod = 'nova';
   body.innerHTML = `
     <div class="field"><label>Прізвище</label><input type="text" id="ordLast"></div>
     <div class="field"><label>Ім'я</label><input type="text" id="ordFirst"></div>
     <div class="field"><label>По батькові (необов'язково)</label><input type="text" id="ordMiddle"></div>
     <div class="field"><label>Телефон</label><input type="tel" id="ordPhone" placeholder="+380..."></div>
-    <div class="field"><label>Місто (Нова Пошта)</label><input type="text" id="ordCity"></div>
-    <div class="field"><label>Відділення / поштомат Нової Пошти</label><input type="text" id="ordBranch"></div>
+    <div class="field">
+      <label>Спосіб доставки</label>
+      <div class="delivery-switch">
+        <button type="button" class="dswitch-btn active" id="dswNova" onclick="setDeliveryMethod('nova')">Нова Пошта</button>
+        <button type="button" class="dswitch-btn" id="dswUkr" onclick="setDeliveryMethod('ukr')">Укрпошта</button>
+      </div>
+    </div>
+    <div id="deliveryFields"></div>
     <div class="field"><label>Коментар (необов'язково)</label><textarea id="ordComment"></textarea></div>
     <div class="msg" id="ordMsg"></div>`;
+  renderDeliveryFields();
   foot.innerHTML = `
     <button type="button" class="btn-gold" id="ordSubmitBtn" onclick="submitOrder()">Підтвердити замовлення</button>
     <button type="button" class="btn-ghost" onclick="renderCartView()">Назад в кошик</button>`;
@@ -456,20 +469,64 @@ async function sendOrderPhotos(chatId, items){
   }
 }
 
+function renderDeliveryFields(){
+  const el = document.getElementById('deliveryFields');
+  if (!el) return;
+  if (ordMethod === 'nova') {
+    el.innerHTML = `
+      <div class="field"><label>Місто (Нова Пошта)</label><input type="text" id="ordCity"></div>
+      <div class="field"><label>Відділення / поштомат Нової Пошти</label><input type="text" id="ordBranch"></div>`;
+  } else {
+    el.innerHTML = `
+      <div class="field"><label>Індекс</label><input type="text" id="ordIndex"></div>
+      <div class="field"><label>Область</label><input type="text" id="ordRegion"></div>
+      <div class="field"><label>Район</label><input type="text" id="ordDistrict"></div>
+      <div class="field"><label>Населений пункт</label><input type="text" id="ordSettlement"></div>`;
+  }
+}
+
+window.setDeliveryMethod = function(method){
+  ordMethod = method;
+  const bNova = document.getElementById('dswNova');
+  const bUkr = document.getElementById('dswUkr');
+  if (bNova) bNova.classList.toggle('active', method === 'nova');
+  if (bUkr) bUkr.classList.toggle('active', method === 'ukr');
+  renderDeliveryFields();
+};
+
 window.submitOrder = async function(){
   const last = document.getElementById('ordLast').value.trim();
   const first = document.getElementById('ordFirst').value.trim();
   const middle = document.getElementById('ordMiddle').value.trim();
   const phone = document.getElementById('ordPhone').value.trim();
-  const city = document.getElementById('ordCity').value.trim();
-  const branch = document.getElementById('ordBranch').value.trim();
   const comment = document.getElementById('ordComment').value.trim();
   const msgEl = document.getElementById('ordMsg');
 
-  if (!last || !first || !phone || !city || !branch) {
-    msgEl.textContent = 'Заповніть, будь ласка, обов\'язкові поля: прізвище, ім\'я, телефон, місто, відділення';
-    return;
+  let delivery = {};
+  let deliveryText = '';
+
+  if (ordMethod === 'nova') {
+    const city = document.getElementById('ordCity').value.trim();
+    const branch = document.getElementById('ordBranch').value.trim();
+    if (!last || !first || !phone || !city || !branch) {
+      msgEl.textContent = 'Заповніть, будь ласка, обов\'язкові поля: прізвище, ім\'я, телефон, місто, відділення';
+      return;
+    }
+    delivery = { method: 'Нова Пошта', city, branch };
+    deliveryText = `📍 Нова Пошта: ${city}, відділення: ${branch}`;
+  } else {
+    const index = document.getElementById('ordIndex').value.trim();
+    const region = document.getElementById('ordRegion').value.trim();
+    const district = document.getElementById('ordDistrict').value.trim();
+    const settlement = document.getElementById('ordSettlement').value.trim();
+    if (!last || !first || !phone || !index || !region || !district || !settlement) {
+      msgEl.textContent = 'Заповніть, будь ласка, обов\'язкові поля: прізвище, ім\'я, телефон, індекс, область, район, населений пункт';
+      return;
+    }
+    delivery = { method: 'Укрпошта', index, region, district, settlement };
+    deliveryText = `📍 Укрпошта: ${index}, ${region} обл., ${district} р-н, ${settlement}`;
   }
+
   msgEl.textContent = '';
   const btn = document.getElementById('ordSubmitBtn');
   btn.disabled = true;
@@ -478,7 +535,7 @@ window.submitOrder = async function(){
   const itemsText = cart.map(c => `${c.category} × ${c.qty}`).join(', ');
   const orderData = {
     lastName: last, firstName: first, middleName: middle,
-    phone, city, branch, comment,
+    phone, delivery, comment,
     items: cart.map(c => ({ category: c.category, qty: c.qty })),
     createdAt: serverTimestamp()
   };
@@ -491,7 +548,7 @@ window.submitOrder = async function(){
 
 👤 ${last} ${first} ${middle}
 📞 ${phone}
-📍 ${city}, відділення: ${branch}
+${deliveryText}
 💬 ${comment || '—'}
 
 Товари: ${itemsText}`;
