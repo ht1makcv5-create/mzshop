@@ -314,13 +314,14 @@
     var mzDir = sessionStorage.getItem('mzPT');
     if (mzDir) {
       sessionStorage.removeItem('mzPT');
-      /* suppress smooth-scroll (conflicts with translateX animation) */
+      /* kill scroll-to-anchor (#catalog) and smooth-scroll — both conflict with translateX */
+      window.scrollTo(0, 0);
       document.documentElement.style.scrollBehavior = 'auto';
       requestAnimationFrame(function(){
         /* remove pre-render lock, start animation */
         document.documentElement.removeAttribute('data-mz-enter');
         document.body.classList.add(mzDir === 'fwd' ? 'page-in-fwd' : 'page-in-bwd');
-        setTimeout(function(){document.documentElement.style.scrollBehavior='';},820);
+        setTimeout(function(){document.documentElement.style.scrollBehavior='';}, 820);
       });
     }
   })();
