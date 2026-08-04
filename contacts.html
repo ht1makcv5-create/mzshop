@@ -186,7 +186,17 @@
 </style>
 </head>
 <body>
-<script>document.body.classList.add('page-in');</script>
+<script>
+  document.body.classList.add('page-in');
+  window.addEventListener('pageshow', function(e){
+    document.body.classList.remove('page-out');
+    if (e.persisted) {
+      document.body.classList.remove('page-in');
+      void document.body.offsetWidth;
+      document.body.classList.add('page-in');
+    }
+  });
+</script>
 
 <div class="inapp-banner" id="inappBanner">
   <b>Це вбудований браузер Facebook/Instagram</b> — сайт може виглядати гірше, ніж у звичайному браузері.
