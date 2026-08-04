@@ -177,11 +177,11 @@
   .order-success h4{font-family:'Cormorant Garamond';font-style:italic;font-size:1.4rem;color:var(--gold-bright);margin-bottom:10px;}
   .order-success p{color:var(--muted);font-size:.85rem;}
 
-  /* ---- плавний перехід між сторінками (легкий, тільки opacity — без blur, щоб не лагало) ---- */
-  @keyframes pageFadeOut{ to{opacity:0;} }
-  @keyframes pageFadeIn{ from{opacity:0;} to{opacity:1;} }
-  body.page-out{animation:pageFadeOut .45s ease forwards;pointer-events:none;}
-  body.page-in{animation:pageFadeIn .5s ease;}
+  /* ---- плавний перехід між сторінками: contacts завжди рухається "вліво" (на каталог виходить вліво, з каталогу заходить зліва) ---- */
+  @keyframes pageOutLeft{ to{opacity:0;transform:translateX(-8%);} }
+  @keyframes pageInFromLeft{ from{opacity:0;transform:translateX(-8%);} to{opacity:1;transform:translateX(0);} }
+  body.page-out{animation:pageOutLeft .38s cubic-bezier(.4,0,.2,1) forwards;pointer-events:none;}
+  body.page-in{animation:pageInFromLeft .42s cubic-bezier(.16,.8,.24,1);}
   @media (prefers-reduced-motion:reduce){ body.page-out,body.page-in{animation:none!important;} }
 </style>
 </head>
@@ -588,7 +588,7 @@ ${deliveryText}
     if (reduce) { window.location.href = url.href; return; }
     try { sessionStorage.setItem('mzPageTransition','1'); } catch(err){}
     document.body.classList.add('page-out');
-    setTimeout(function(){ window.location.href = url.href; }, 430);
+    setTimeout(function(){ window.location.href = url.href; }, 360);
   });
 })();
 </script>
