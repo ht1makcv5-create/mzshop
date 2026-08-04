@@ -177,24 +177,25 @@
   .order-success h4{font-family:'Cormorant Garamond';font-style:italic;font-size:1.4rem;color:var(--gold-bright);margin-bottom:10px;}
   .order-success p{color:var(--muted);font-size:.85rem;}
 
-  /* ---- плавний перехід між сторінками ---- */
-  @keyframes pageFadeOut{ to{opacity:0;filter:blur(6px);} }
-  @keyframes pageFadeIn{ from{opacity:0;filter:blur(6px);} to{opacity:1;filter:blur(0);} }
-  body.page-out{animation:pageFadeOut 2s cubic-bezier(.45,0,.55,1) forwards;pointer-events:none;}
-  body.page-in{animation:pageFadeIn 2s cubic-bezier(.45,0,.55,1);}
+  /* ---- плавний перехід між сторінками (легкий, тільки opacity — без blur, щоб не лагало) ---- */
+  @keyframes pageFadeOut{ to{opacity:0;} }
+  @keyframes pageFadeIn{ from{opacity:0;} to{opacity:1;} }
+  body.page-out{animation:pageFadeOut .45s ease forwards;pointer-events:none;}
+  body.page-in{animation:pageFadeIn .5s ease;}
   @media (prefers-reduced-motion:reduce){ body.page-out,body.page-in{animation:none!important;} }
 </style>
 </head>
 <body>
 <script>
-  document.body.classList.add('page-in');
-  window.addEventListener('pageshow', function(e){
-    document.body.classList.remove('page-out');
-    if (e.persisted) {
-      document.body.classList.remove('page-in');
-      void document.body.offsetWidth;
+  (function(){
+    if (sessionStorage.getItem('mzPageTransition')) {
+      sessionStorage.removeItem('mzPageTransition');
       document.body.classList.add('page-in');
     }
+  })();
+  window.addEventListener('pageshow', function(){
+    document.body.classList.remove('page-out');
+    document.body.classList.remove('page-in');
   });
 </script>
 
@@ -585,8 +586,9 @@ ${deliveryText}
     if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return;
     e.preventDefault();
     if (reduce) { window.location.href = url.href; return; }
+    try { sessionStorage.setItem('mzPageTransition','1'); } catch(err){}
     document.body.classList.add('page-out');
-    setTimeout(function(){ window.location.href = url.href; }, 2000);
+    setTimeout(function(){ window.location.href = url.href; }, 430);
   });
 })();
 </script>
