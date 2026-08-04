@@ -286,10 +286,10 @@
   .order-success p{color:var(--muted);font-size:.85rem;}
 
   /* ---- плавний перехід між сторінками: index завжди рухається "вправо" (на контакти виходить вправо, з контактів заходить справа) ---- */
-  @keyframes pageOutRight{ to{opacity:0;transform:translateX(8%);} }
-  @keyframes pageInFromRight{ from{opacity:0;transform:translateX(8%);} to{opacity:1;transform:translateX(0);} }
-  body.page-out{animation:pageOutRight .38s cubic-bezier(.4,0,.2,1) forwards;pointer-events:none;}
-  body.page-in{animation:pageInFromRight .42s cubic-bezier(.16,.8,.24,1);}
+  @keyframes pageOut{ to{opacity:0;transform:translateY(-14px);filter:blur(3px);} }
+  @keyframes pageIn{ from{opacity:0;transform:translateY(18px);filter:blur(3px);} to{opacity:1;transform:translateY(0);filter:blur(0);} }
+  body.page-out{animation:pageOut .5s cubic-bezier(.4,0,.2,1) forwards;pointer-events:none;}
+  body.page-in{animation:pageIn .65s cubic-bezier(.16,.8,.24,1);}
   @media (prefers-reduced-motion:reduce){ body.page-out,body.page-in{animation:none!important;} }
 </style>
 </head>
@@ -970,7 +970,7 @@ restartReviewTimer();
     if (reduce) { window.location.href = url.href; return; }
     try { sessionStorage.setItem('mzPageTransition','1'); } catch(err){}
     document.body.classList.add('page-out');
-    setTimeout(function(){ window.location.href = url.href; }, 360);
+    setTimeout(function(){ window.location.href = url.href; }, 520);
   });
 })();
 </script>
