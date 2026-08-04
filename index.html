@@ -114,6 +114,24 @@
   .cta-strip a.btn{display:inline-block;padding:16px 40px;background:linear-gradient(135deg,var(--gold-bright),var(--gold));color:var(--bg-void);font-weight:500;letter-spacing:1px;text-transform:uppercase;font-size:.82rem;border-radius:30px;box-shadow:0 8px 30px -8px rgba(201,169,97,.5);transition:.3s;}
   .cta-strip a.btn:hover{transform:translateY(-2px);}
 
+  /* ---- відгуки ---- */
+  .reviews{padding:70px 0 30px;}
+  .review-carousel{position:relative;max-width:640px;margin:0 auto;min-height:230px;border-radius:10px;overflow:hidden;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(201,169,97,.16), transparent 55%),
+      radial-gradient(circle at 85% 85%, rgba(232,205,138,.10), transparent 50%),
+      linear-gradient(150deg,#1c1a15 0%,#100f0d 55%,#0b0b0c 100%);
+    border:1px solid var(--line);
+  }
+  .review-slide{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .7s ease;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:38px 44px;}
+  .review-slide.active{opacity:1;pointer-events:auto;}
+  .review-stars{color:var(--gold);font-size:.95rem;letter-spacing:3px;margin-bottom:16px;}
+  .review-text{font-family:'Cormorant Garamond';font-style:italic;font-size:1.25rem;line-height:1.5;color:var(--cream);max-width:480px;}
+  .review-author{margin-top:18px;font-size:.74rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold-bright);}
+  .review-dots{display:flex;justify-content:center;gap:7px;margin-top:20px;}
+  .review-dot{width:6px;height:6px;border-radius:50%;background:var(--line);border:none;cursor:pointer;padding:0;transition:.25s;}
+  .review-dot.active{background:var(--gold);width:18px;border-radius:3px;}
+
   footer{padding:30px 0 40px;text-align:center;font-size:.72rem;color:#4a4740;letter-spacing:1px;}
 
   .overlay{position:fixed;inset:0;background:rgba(5,5,5,.82);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
@@ -247,6 +265,20 @@
     </div>
     <div class="filters" id="filters"></div>
     <div class="grid" id="grid"><div class="empty-state">Завантаження…</div></div>
+  </div>
+</section>
+
+<div class="chain"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<section class="reviews">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Відгуки</h2>
+      <span>що кажуть наші клієнтки</span>
+      <div class="flourish"><span></span><em>◆</em><span></span></div>
+    </div>
+    <div class="review-carousel" id="reviewCarousel"></div>
+    <div class="review-dots" id="reviewDots"></div>
   </div>
 </section>
 
@@ -644,6 +676,63 @@ ${deliveryText}
 
 function closeOverlayFn(id){ document.getElementById(id).classList.remove('show'); }
 window.closeOverlay = closeOverlayFn;
+
+/* ---------- відгуки: каруселька, що плавно перегортається ---------- */
+const REVIEWS = [
+  { text: `Я замовляла, дуже хороший товар і продавець супер!!!`, author: `Сніжана Тихун` },
+  { text: `Замовляла в Галі прикраси неодноразово. Все підказала, порадила, швидко відправила. Якось я не вгадала розмір колечка — без проблем обміняла. Прикраси служать довго. Рекомендую.`, author: `Oksana Strakharchuk` },
+  { text: `Замовляла сережки дуже багато раз. Пані Галина відповідальна, товар приходить вчасно, і навіть були маленькі сюрпризи для мене. Все якісне, відповідає фото. Рекомендую!!!`, author: `Наталя Пиндзин` },
+  { text: `Дівчата, забрала сьогодні товар — я задоволена, і сережки, і кільце суперові, і Галина — людина ну супер. Рекомендую всім!!!`, author: `Ольга Давидович` },
+  { text: `Робила замовлення не раз. Дуже швидко. Чесний і відповідальний продавець. Рекомендую.`, author: `Юлія Запорізька` },
+  { text: `Замовляла для себе та своєї донечки сережки. Задоволена якістю виробу та відповідальністю продавця. Рекомендую.`, author: `Ирина Андрухова` },
+  { text: `Замовляла не раз, якісна консультація, швидке відправлення, товар при отриманні відповідає дійсності. Рекомендую!!!`, author: `Юлія Бардаш` },
+  { text: `Купляла і не раз, і надалі буду! Всім рекомендую! Якість супер і продавець супер!!!`, author: `Маряна Іванець-Лобай` },
+  { text: `Замовляла сережки, суперові, продавець надійний, все прийшло дуже швидко. Гарних і вдячних вам клієнтів і мега продаж ❤️`, author: `Oksana Buhaichuk` },
+  { text: `Замовляла сережки і не одні, дуже якісна робота, я задоволена. З радістю би замовила браслет і ланцюжок. Дуже вам вдячна за якісний товар. Рекомендую!`, author: `Olga Topalo` },
+  { text: `Я купляла неодноразово сережки в пані Галини — супер і якісні, не облазять, не чорніють, і чесний продавець. Можна із задоволенням замовляти. Рекомендую 💯`, author: `Тетяна Красьоха` },
+  { text: `Дякую за придбаний товар, великий асортимент, можуть порадити, швидка доставка і якісна, приємне ставлення до клієнтів. Все добре, приємний продавець, рекомендую 🌺`, author: `Надія Доміна` },
+  { text: `Замовлення робили не один раз, я і сестра — чудовий продавець, порадить і підкаже, входить в положення. Дуже дякую вам, чудовий продавець ❤️`, author: `Ксенія Гальчинська` },
+  { text: `Захотіла оновити собі красу на вушка — замовила дві пари. Отримала скоро. Гарні, зручні і якісні. Щиро дякую за задоволення 🤗`, author: `Ирина Гедзерук` },
+  { text: `Хочу подякувати за сережки. Дуже швидко доставили, і гарні, як справжнє золото. Раджу купувати всім, хто бачить ці прикраси. Не пошкодуєте, що купили.`, author: `Ольга Коломиец` },
+  { text: `Замовляла, все чудово!!! Галина і її товар супер!!!`, author: `Марія Стоянович` },
+  { text: `Я теж замовляв — прийшли дуже гарні сережки на подарунок. Велике дякую вам, дуже задоволені були подарунком. Замовляйте, не пошкодуєте 👍`, author: `Кузьма Богдан` },
+  { text: `Замовляла сережки собі і дитині, дуже задоволена, щиро дякую!`, author: `Tanusha Sirko` }
+];
+
+let reviewIdx = 0;
+let reviewTimer = null;
+
+function renderReviews(){
+  const carousel = document.getElementById('reviewCarousel');
+  const dots = document.getElementById('reviewDots');
+  if (!carousel || !dots) return;
+  carousel.innerHTML = REVIEWS.map((r,i) => `
+    <div class="review-slide${i===0 ? ' active' : ''}" data-i="${i}">
+      <div class="review-stars">★★★★★</div>
+      <div class="review-text">«${r.text}»</div>
+      <div class="review-author">${r.author}</div>
+    </div>`).join('');
+  dots.innerHTML = REVIEWS.map((_,i) => `<button type="button" class="review-dot${i===0 ? ' active' : ''}" onclick="goToReview(${i})" aria-label="Відгук ${i+1}"></button>`).join('');
+}
+
+window.goToReview = function(i){
+  reviewIdx = i;
+  document.querySelectorAll('.review-slide').forEach(el => el.classList.toggle('active', +el.dataset.i === reviewIdx));
+  document.querySelectorAll('.review-dot').forEach((el,idx) => el.classList.toggle('active', idx === reviewIdx));
+  restartReviewTimer();
+};
+
+function nextReview(){
+  window.goToReview((reviewIdx + 1) % REVIEWS.length);
+}
+
+function restartReviewTimer(){
+  clearInterval(reviewTimer);
+  reviewTimer = setInterval(nextReview, 5000);
+}
+
+renderReviews();
+restartReviewTimer();
 </script>
 </body>
 </html>
