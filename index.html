@@ -301,9 +301,9 @@
       document.body.classList.add('page-in');
     }
   })();
-  window.addEventListener('pageshow', function(){
+  window.addEventListener('pageshow', function(e){
     document.body.classList.remove('page-out');
-    document.body.classList.remove('page-in');
+    if (e.persisted) document.body.classList.remove('page-in');
   });
 </script>
 
