@@ -178,10 +178,10 @@
   .order-success p{color:var(--muted);font-size:.85rem;}
 
   /* ---- плавний перехід між сторінками ---- */
-  @keyframes pageFadeOut{ to{opacity:0;transform:translateX(-3%);filter:blur(9px);} }
-  @keyframes pageFadeIn{ from{opacity:0;transform:translateX(3%);filter:blur(9px);} to{opacity:1;transform:translateX(0);filter:blur(0);} }
-  body.page-out{animation:pageFadeOut .7s cubic-bezier(.4,0,.2,1) forwards;pointer-events:none;}
-  body.page-in{animation:pageFadeIn .8s cubic-bezier(.16,.8,.24,1);}
+  @keyframes pageFadeOut{ to{opacity:0;transform:translateX(-2%);filter:blur(5px);} }
+  @keyframes pageFadeIn{ from{opacity:0;transform:translateX(2%);filter:blur(5px);} to{opacity:1;transform:translateX(0);filter:blur(0);} }
+  body.page-out{animation:pageFadeOut .28s ease-out forwards;pointer-events:none;}
+  body.page-in{animation:pageFadeIn .38s ease-out;}
   @media (prefers-reduced-motion:reduce){ body.page-out,body.page-in{animation:none!important;} }
 </style>
 </head>
@@ -586,7 +586,7 @@ ${deliveryText}
     e.preventDefault();
     if (reduce) { window.location.href = url.href; return; }
     document.body.classList.add('page-out');
-    setTimeout(function(){ window.location.href = url.href; }, 680);
+    setTimeout(function(){ window.location.href = url.href; }, 260);
   });
 })();
 </script>
