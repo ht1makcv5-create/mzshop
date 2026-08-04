@@ -178,10 +178,10 @@
   .order-success p{color:var(--muted);font-size:.85rem;}
 
   /* ---- плавний перехід між сторінками: contacts завжди рухається "вліво" (на каталог виходить вліво, з каталогу заходить зліва) ---- */
-  @keyframes pageOut{ to{opacity:0;transform:translateY(-14px);filter:blur(3px);} }
-  @keyframes pageIn{ from{opacity:0;transform:translateY(18px);filter:blur(3px);} to{opacity:1;transform:translateY(0);filter:blur(0);} }
-  body.page-out{animation:pageOut .5s cubic-bezier(.4,0,.2,1) forwards;pointer-events:none;}
-  body.page-in{animation:pageIn .65s cubic-bezier(.16,.8,.24,1);}
+  @keyframes pageOut{ to{opacity:0;transform:translateY(-10px);} }
+  @keyframes pageIn{ from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+  body.page-out{will-change:opacity,transform;animation:pageOut .22s cubic-bezier(.4,0,.2,1) forwards;pointer-events:none;}
+  body.page-in{will-change:opacity,transform;animation:pageIn .3s cubic-bezier(.16,.8,.24,1);}
   @media (prefers-reduced-motion:reduce){ body.page-out,body.page-in{animation:none!important;} }
 </style>
 </head>
@@ -191,6 +191,7 @@
     if (sessionStorage.getItem('mzPageTransition')) {
       sessionStorage.removeItem('mzPageTransition');
       document.body.classList.add('page-in');
+      setTimeout(function(){ document.body.classList.add('done'); }, 350);
     }
   })();
   window.addEventListener('pageshow', function(e){
@@ -572,7 +573,7 @@ ${deliveryText}
   }
 };
 
-/* ---------- плавний перехід між сторінками сайту ---------- */
+/* ---------- плавний перехід між сторінками ---------- */
 (function(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.addEventListener('click', function(e){
@@ -583,12 +584,14 @@ ${deliveryText}
     if (!href) return;
     var url;
     try { url = new URL(href, window.location.href); } catch(err){ return; }
-    if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return;
+    var samePathname = url.pathname === window.location.pathname ||
+      url.pathname.replace(/\/index\.html$/, '/') === window.location.pathname.replace(/\/index\.html$/, '/');
+    if (url.origin !== window.location.origin || samePathname) return;
     e.preventDefault();
     if (reduce) { window.location.href = url.href; return; }
     try { sessionStorage.setItem('mzPageTransition','1'); } catch(err){}
     document.body.classList.add('page-out');
-    setTimeout(function(){ window.location.href = url.href; }, 520);
+    setTimeout(function(){ window.location.href = url.href; }, 240);
   });
 })();
 </script>
