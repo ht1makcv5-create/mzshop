@@ -177,48 +177,47 @@
   .order-success h4{font-family:'Cormorant Garamond';font-style:italic;font-size:1.4rem;color:var(--gold-bright);margin-bottom:10px;}
   .order-success p{color:var(--muted);font-size:.85rem;}
 
-  /* ---- плавний перехід між сторінками: contacts завжди рухається "вліво" (на каталог виходить вліво, з каталогу заходить зліва) ---- */
-  /* ── cinematic horizontal slide + blur transition ── */
-  @keyframes mzExitFwd{
-    0%  {transform:translateX(0)    scale(1);    opacity:1; filter:blur(0px);}
-    100%{transform:translateX(-38%) scale(.97);  opacity:0; filter:blur(7px);}
-  }
-  @keyframes mzExitBwd{
-    0%  {transform:translateX(0)   scale(1);    opacity:1; filter:blur(0px);}
-    100%{transform:translateX(38%) scale(.97);  opacity:0; filter:blur(7px);}
-  }
+  /* ── side-by-side slide transition ── */
+  /* pre-render start positions (set via HEAD script before first paint) */
+  html[data-mz-enter="fwd"] body{transform:translateX(100%);opacity:0;filter:blur(6px);}
+  html[data-mz-enter="bwd"] body{transform:translateX(-100%);opacity:0;filter:blur(6px);}
+
   @keyframes mzEnterFwd{
-    0%  {transform:translateX(100%) scale(1.02); opacity:0; filter:blur(10px);}
-    60% {filter:blur(2px);}
-    100%{transform:translateX(0)    scale(1);   opacity:1; filter:blur(0px);}
+    from{transform:translateX(100%);opacity:0;filter:blur(6px);}
+    to  {transform:translateX(0);   opacity:1;filter:blur(0px);}
   }
   @keyframes mzEnterBwd{
-    0%  {transform:translateX(-100%) scale(1.02); opacity:0; filter:blur(10px);}
-    60% {filter:blur(2px);}
-    100%{transform:translateX(0)     scale(1);   opacity:1; filter:blur(0px);}
+    from{transform:translateX(-100%);opacity:0;filter:blur(6px);}
+    to  {transform:translateX(0);    opacity:1;filter:blur(0px);}
   }
-  body.page-out-fwd{will-change:transform,opacity,filter;animation:mzExitFwd  .38s cubic-bezier(.55,0,.45,1) forwards;pointer-events:none;overflow:hidden;}
-  body.page-out-bwd{will-change:transform,opacity,filter;animation:mzExitBwd  .38s cubic-bezier(.55,0,.45,1) forwards;pointer-events:none;overflow:hidden;}
-  body.page-in-fwd {will-change:transform,opacity,filter;animation:mzEnterFwd .78s cubic-bezier(.22,.9,.36,1);}
-  body.page-in-bwd {will-change:transform,opacity,filter;animation:mzEnterBwd .78s cubic-bezier(.22,.9,.36,1);}
-  @media(prefers-reduced-motion:reduce){body.page-out-fwd,body.page-out-bwd,body.page-in-fwd,body.page-in-bwd{animation:none!important;}}
+  body.page-in-fwd{will-change:transform,opacity,filter;animation:mzEnterFwd .75s cubic-bezier(.22,.9,.36,1) both;}
+  body.page-in-bwd{will-change:transform,opacity,filter;animation:mzEnterBwd .75s cubic-bezier(.22,.9,.36,1) both;}
+  @media(prefers-reduced-motion:reduce){body.page-in-fwd,body.page-in-bwd{animation:none!important;}}
 </style>
+<link rel="prefetch" href="index.html">
+<script>
+/* mz: lock body position before first paint */
+(function(){var d=sessionStorage.getItem('mzPT');if(d)document.documentElement.setAttribute('data-mz-enter',d);})();
+</script>
 </head>
 <body>
 <script>
   (function(){
-    var mzDir = sessionStorage.getItem('mzPageTransition');
+    var mzDir = sessionStorage.getItem('mzPT');
     if (mzDir) {
-      sessionStorage.removeItem('mzPageTransition');
+      sessionStorage.removeItem('mzPT');
+      /* suppress smooth-scroll (conflicts with translateX animation) */
+      document.documentElement.style.scrollBehavior = 'auto';
       requestAnimationFrame(function(){
-        requestAnimationFrame(function(){
-          document.body.classList.add(mzDir === 'fwd' ? 'page-in-fwd' : 'page-in-bwd');
-        });
+        /* remove pre-render lock, start animation */
+        document.documentElement.removeAttribute('data-mz-enter');
+        document.body.classList.add(mzDir === 'fwd' ? 'page-in-fwd' : 'page-in-bwd');
+        setTimeout(function(){document.documentElement.style.scrollBehavior='';},820);
       });
     }
   })();
   window.addEventListener('pageshow', function(e){
-    document.body.classList.remove('page-out-fwd','page-out-bwd');
+    document.documentElement.removeAttribute('data-mz-enter');
     if (e.persisted) document.body.classList.remove('page-in-fwd','page-in-bwd');
   });
 </script>
@@ -612,9 +611,8 @@ ${deliveryText}
     if (url.origin !== window.location.origin || samePathname) return;
     e.preventDefault();
     if (reduce) { window.location.href = url.href; return; }
-    try { sessionStorage.setItem('mzPageTransition','bwd'); } catch(err){}
-    document.body.classList.add('page-out-bwd');
-    setTimeout(function(){ window.location.href = url.href; }, 430);
+    try { sessionStorage.setItem('mzPT','bwd'); } catch(err){}
+    window.location.href = url.href;
   });
 })();
 </script>
