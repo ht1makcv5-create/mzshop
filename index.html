@@ -298,8 +298,11 @@
   (function(){
     if (sessionStorage.getItem('mzPageTransition')) {
       sessionStorage.removeItem('mzPageTransition');
-      document.body.classList.add('page-in');
-      setTimeout(function(){ document.body.classList.add('done'); }, 350);
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          document.body.classList.add('page-in');
+        });
+      });
     }
   })();
   window.addEventListener('pageshow', function(e){
