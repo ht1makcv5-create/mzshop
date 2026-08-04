@@ -51,6 +51,13 @@
   body.compact-mode .page-hero{padding:36px 0 20px;}
   body.compact-mode .tg-hero{padding:20px 0 40px;}
 
+  /* ---- плавна поява при скролі ---- */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.16,.8,.24,1),transform .8s cubic-bezier(.16,.8,.24,1);}
+  .reveal.in-view{opacity:1;transform:translateY(0);}
+  .reveal-img{opacity:0;transform:scale(1.05);transition:opacity .9s cubic-bezier(.16,.8,.24,1),transform .9s cubic-bezier(.16,.8,.24,1);}
+  .reveal-img.in-view{opacity:1;transform:scale(1);}
+  @media (prefers-reduced-motion:reduce){ .reveal,.reveal-img{opacity:1;transform:none;transition:none;} }
+
   .chain{display:flex;align-items:center;justify-content:center;gap:10px;height:20px;opacity:.85;}
   .chain span{width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.55;}
   .chain span:nth-child(3n){opacity:1;width:8px;height:8px;box-shadow:0 0 8px rgba(201,169,97,.6);}
@@ -194,7 +201,7 @@
 
 <section class="tg-hero">
   <div class="wrap">
-    <a class="tg-btn" href="https://t.me/soronovu4ka" target="_blank" rel="noopener noreferrer">
+    <a class="tg-btn reveal" href="https://t.me/soronovu4ka" target="_blank" rel="noopener noreferrer">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M22 3L2.5 10.7c-1.2.5-1.2 1.2-.2 1.5l5 1.6 1.9 6c.2.6.4.8.9.8.5 0 .7-.2 1-.5l2.4-2.3 5 3.6c.9.5 1.5.2 1.8-.9L23.9 4.3c.3-1.3-.5-1.9-1.9-1.3z" fill="currentColor"/></svg>
       Написати в Telegram
     </a>
@@ -206,21 +213,21 @@
   <div class="wrap">
     <div class="card-grid">
 
-      <a class="ccard" href="tel:+380730944741">
+      <a class="ccard reveal" href="tel:+380730944741">
         <div class="icon">☎</div>
         <div class="label">Телефон</div>
         <div class="value">+380 73 094 4741</div>
         <div class="sub">натисніть, щоб подзвонити</div>
       </a>
 
-      <a class="ccard" href="https://t.me/soronovu4ka" target="_blank" rel="noopener noreferrer">
+      <a class="ccard reveal" href="https://t.me/soronovu4ka" target="_blank" rel="noopener noreferrer">
         <div class="icon">✉</div>
         <div class="label">Telegram власника</div>
         <div class="value">@soronovu4ka</div>
         <div class="sub">особисті питання й консультації</div>
       </a>
 
-      <a class="ccard" href="https://facebook.com/galina.valeriivna.soronovic" target="_blank" rel="noopener noreferrer">
+      <a class="ccard reveal" href="https://facebook.com/galina.valeriivna.soronovic" target="_blank" rel="noopener noreferrer">
         <div class="icon">◆</div>
         <div class="label">Facebook</div>
         <div class="value">Galina Soronovic</div>
@@ -261,6 +268,17 @@ function saveCart(){
   try{ localStorage.setItem(CART_KEY, JSON.stringify(cart)); }catch(e){}
 }
 let cart = loadCart();
+
+/* ---------- плавна поява елементів при скролі ---------- */
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in-view');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+document.querySelectorAll('.reveal, .reveal-img').forEach(el => revealObserver.observe(el));
 
 function updateCartBadge(){
   const count = cart.reduce((s,c)=>s+c.qty,0);

@@ -55,6 +55,13 @@
   body.compact-mode .section-head{margin-bottom:24px;}
   body.compact-mode .filters{margin-bottom:26px;}
 
+  /* ---- плавна поява при скролі ---- */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.16,.8,.24,1),transform .8s cubic-bezier(.16,.8,.24,1);}
+  .reveal.in-view{opacity:1;transform:translateY(0);}
+  .reveal-img{opacity:0;transform:scale(1.05);transition:opacity .9s cubic-bezier(.16,.8,.24,1),transform .9s cubic-bezier(.16,.8,.24,1);}
+  .reveal-img.in-view{opacity:1;transform:scale(1);}
+  @media (prefers-reduced-motion:reduce){ .reveal,.reveal-img{opacity:1;transform:none;transition:none;} }
+
   .chain{display:flex;align-items:center;justify-content:center;gap:10px;height:20px;opacity:.85;}
   .chain span{width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.55;}
   .chain span:nth-child(3n){opacity:1;width:8px;height:8px;box-shadow:0 0 8px rgba(201,169,97,.6);}
@@ -179,9 +186,14 @@
   .progress-msg{font-size:.75rem;color:var(--gold-bright);margin:-8px 0 12px;min-height:14px;}
   /* ---- квіклук фото + кнопка в кошик (однаковий простий макет на всіх екранах, фіксована висота фото) ---- */
   .lb-modal{max-width:400px;padding:0;}
-  .lb-photo{width:100%;height:190px;background:var(--bg-surface-2);overflow:hidden;border-radius:6px 6px 0 0;}
-  .lb-photo img{width:100%;height:100%;object-fit:contain;}
+  .lb-photo{width:100%;height:190px;background:var(--bg-surface-2);overflow:hidden;border-radius:6px 6px 0 0;position:relative;}
+  .lb-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:transform .4s cubic-bezier(.22,.61,.36,1),opacity .4s ease;}
   .lb-body{padding:20px 26px 26px;}
+  .lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:rgba(11,11,12,.55);border:1px solid var(--gold);color:var(--gold-bright);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;transition:.2s;}
+  .lb-nav:hover{background:var(--gold);color:var(--bg-void);}
+  .lb-nav.prev{left:8px;}
+  .lb-nav.next{right:8px;}
+  .lb-counter{position:absolute;bottom:8px;right:10px;font-size:.68rem;letter-spacing:.5px;color:var(--cream);background:rgba(11,11,12,.55);padding:2px 8px;border-radius:10px;z-index:3;}
   .lb-cat{font-family:'Cormorant Garamond';font-style:italic;font-size:1.3rem;color:var(--gold-bright);margin-bottom:4px;}
   .lb-new{display:inline-block;margin-bottom:14px;font-size:.65rem;letter-spacing:1px;text-transform:uppercase;color:var(--gold);}
   .qty-row{display:flex;align-items:center;justify-content:space-between;margin:18px 0;}
@@ -276,12 +288,12 @@
 
 <section class="catalog" id="catalog">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <h2>Каталог</h2>
       <span>обирайте за типом застібки</span>
       <div class="flourish"><span></span><em>◆</em><span></span></div>
     </div>
-    <div class="filters" id="filters"></div>
+    <div class="filters reveal" id="filters"></div>
     <div class="grid" id="grid"><div class="empty-state">Завантаження…</div></div>
   </div>
 </section>
@@ -290,12 +302,12 @@
 
 <section class="reviews">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <h2>Відгуки</h2>
       <span>що кажуть наші клієнтки</span>
       <div class="flourish"><span></span><em>◆</em><span></span></div>
     </div>
-    <div class="review-carousel" id="reviewCarousel"></div>
+    <div class="review-carousel reveal-img" id="reviewCarousel"></div>
     <div class="review-dots" id="reviewDots"></div>
   </div>
 </section>
@@ -304,16 +316,22 @@
 
 <section class="cta-strip">
   <div class="wrap">
-    <h3>Сподобались сережки?</h3>
-    <p>Всі деталі про замовлення та зв'язок — на сторінці контактів</p>
-    <a class="btn" href="contacts.html">Перейти в контакти</a>
+    <h3 class="reveal">Сподобались сережки?</h3>
+    <p class="reveal">Всі деталі про замовлення та зв'язок — на сторінці контактів</p>
+    <a class="btn reveal" href="contacts.html">Перейти в контакти</a>
   </div>
 </section>
 
 <!-- quick view + add to cart -->
 <div class="overlay" id="lightboxOverlay">
   <div class="modal lb-modal">
-    <div class="lb-photo"><img id="lbImg" src="" alt=""></div>
+    <div class="lb-photo" id="lbPhoto">
+      <img id="lbImgA" src="" alt="">
+      <img id="lbImgB" src="" alt="">
+      <button type="button" class="lb-nav prev" onclick="lbNav(-1)" aria-label="Попереднє фото">‹</button>
+      <button type="button" class="lb-nav next" onclick="lbNav(1)" aria-label="Наступне фото">›</button>
+      <span class="lb-counter" id="lbCounter"></span>
+    </div>
     <div class="lb-body">
       <div class="lb-cat" id="lbCat"></div>
       <div class="lb-new" id="lbNew" style="display:none;">✦ Новинка</div>
@@ -412,10 +430,27 @@ function renderGrid(){
   grid.innerHTML = list.map(p => `
     <div class="card">
       ${p.isNew ? '<span class="badge-new">Новинка</span>' : ''}
-      <div class="thumb" onclick="openLightbox('${p.id}')"><img src="${p.imageUrl}" alt="${p.category}" loading="lazy"></div>
+      <div class="thumb" onclick="openLightbox('${p.id}')"><img class="reveal-img" src="${p.imageUrl}" alt="${p.category}" loading="lazy"></div>
       <button type="button" class="quick-add" onclick="event.stopPropagation();quickAddToCart('${p.id}')" aria-label="Додати в кошик">+</button>
     </div>`).join('');
+  observeReveal(grid);
 }
+
+/* ---------- плавна поява елементів при скролі ---------- */
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in-view');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+function observeReveal(root){
+  (root || document).querySelectorAll('.reveal, .reveal-img').forEach(el => revealObserver.observe(el));
+}
+document.addEventListener('DOMContentLoaded', () => observeReveal());
+if (document.readyState !== 'loading') observeReveal();
 
 window.quickAddToCart = function(id){
   const p = products.find(x => x.id === id);
@@ -427,17 +462,92 @@ window.quickAddToCart = function(id){
   updateCartBadge();
 };
 
-/* ---------- квіклук фото + кошик ---------- */
+/* ---------- квіклук фото + кошик (з плавним гортанням між товарами) ---------- */
+let lbActiveLayer = 'A'; // яке з двох <img> зараз видиме
+let lbAnimating = false;
+
+function lbSetImage(layerEl, src, fromX){
+  layerEl.style.transition = 'none';
+  layerEl.style.opacity = '0';
+  layerEl.style.transform = `translateX(${fromX}px)`;
+  layerEl.src = src;
+  void layerEl.offsetWidth; // форсуємо reflow, щоб transition спрацював заново
+  layerEl.style.transition = '';
+}
+
+function lbUpdateInfo(){
+  document.getElementById('lbCat').textContent = lbProduct.category;
+  document.getElementById('lbNew').style.display = lbProduct.isNew ? 'inline-block' : 'none';
+  const idx = products.findIndex(p => p.id === lbProduct.id);
+  document.getElementById('lbCounter').textContent = products.length > 1 ? `${idx+1} / ${products.length}` : '';
+  const prevBtn = document.querySelector('.lb-nav.prev');
+  const nextBtn = document.querySelector('.lb-nav.next');
+  if (prevBtn) prevBtn.style.display = idx <= 0 ? 'none' : 'flex';
+  if (nextBtn) nextBtn.style.display = idx >= products.length - 1 ? 'none' : 'flex';
+}
+
 window.openLightbox = function(id){
   lbProduct = products.find(p => p.id === id);
   if (!lbProduct) return;
   lbQty = 1;
-  document.getElementById('lbImg').src = lbProduct.imageUrl;
-  document.getElementById('lbCat').textContent = lbProduct.category;
-  document.getElementById('lbNew').style.display = lbProduct.isNew ? 'inline-block' : 'none';
+  const imgA = document.getElementById('lbImgA');
+  const imgB = document.getElementById('lbImgB');
+  lbActiveLayer = 'A';
+  imgB.style.opacity = '0';
+  imgA.style.transition = 'none';
+  imgA.style.transform = 'translateX(0)';
+  imgA.style.opacity = '1';
+  imgA.src = lbProduct.imageUrl;
+  void imgA.offsetWidth;
+  imgA.style.transition = '';
+  lbUpdateInfo();
   document.getElementById('lbQty').textContent = lbQty;
   document.getElementById('lightboxOverlay').classList.add('show');
 };
+
+window.lbNav = function(dir){
+  if (!lbProduct || lbAnimating || products.length < 2) return;
+  const idx = products.findIndex(p => p.id === lbProduct.id);
+  const nextIdx = idx + dir;
+  if (nextIdx < 0 || nextIdx >= products.length) return; // не по колу — на краях зупиняється
+  lbProduct = products[nextIdx];
+  lbQty = 1;
+  document.getElementById('lbQty').textContent = lbQty;
+
+  const curId = lbActiveLayer === 'A' ? 'lbImgA' : 'lbImgB';
+  const nextId = lbActiveLayer === 'A' ? 'lbImgB' : 'lbImgA';
+  const curEl = document.getElementById(curId);
+  const nextEl = document.getElementById(nextId);
+
+  lbAnimating = true;
+  lbSetImage(nextEl, lbProduct.imageUrl, dir > 0 ? 40 : -40);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      nextEl.style.transform = 'translateX(0)';
+      nextEl.style.opacity = '1';
+      curEl.style.transform = `translateX(${dir > 0 ? -40 : 40}px)`;
+      curEl.style.opacity = '0';
+    });
+  });
+  lbActiveLayer = lbActiveLayer === 'A' ? 'B' : 'A';
+  lbUpdateInfo();
+  setTimeout(() => { lbAnimating = false; }, 420);
+};
+
+/* свайп пальцем по фото в попапі */
+(function(){
+  let touchStartX = null;
+  const photoEl = document.getElementById('lbPhoto');
+  if (!photoEl) return;
+  photoEl.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  photoEl.addEventListener('touchend', (e) => {
+    if (touchStartX === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 40) window.lbNav(dx < 0 ? 1 : -1);
+    touchStartX = null;
+  }, { passive: true });
+})();
+
 window.lbQtyChange = function(d){
   lbQty = Math.max(1, lbQty + d);
   document.getElementById('lbQty').textContent = lbQty;
