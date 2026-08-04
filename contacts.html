@@ -176,9 +176,17 @@
   .order-success .ok-icon{width:52px;height:52px;border-radius:50%;border:1px solid var(--gold);color:var(--gold);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:1.4rem;}
   .order-success h4{font-family:'Cormorant Garamond';font-style:italic;font-size:1.4rem;color:var(--gold-bright);margin-bottom:10px;}
   .order-success p{color:var(--muted);font-size:.85rem;}
+
+  /* ---- плавний перехід між сторінками ---- */
+  @keyframes pageFadeOut{ to{opacity:0;transform:translateX(-3%);filter:blur(9px);} }
+  @keyframes pageFadeIn{ from{opacity:0;transform:translateX(3%);filter:blur(9px);} to{opacity:1;transform:translateX(0);filter:blur(0);} }
+  body.page-out{animation:pageFadeOut .38s cubic-bezier(.4,0,.2,1) forwards;pointer-events:none;}
+  body.page-in{animation:pageFadeIn .55s cubic-bezier(.16,.8,.24,1);}
+  @media (prefers-reduced-motion:reduce){ body.page-out,body.page-in{animation:none!important;} }
 </style>
 </head>
 <body>
+<script>document.body.classList.add('page-in');</script>
 
 <div class="inapp-banner" id="inappBanner">
   <b>Це вбудований браузер Facebook/Instagram</b> — сайт може виглядати гірше, ніж у звичайному браузері.
@@ -552,6 +560,25 @@ ${deliveryText}
     console.error(err);
   }
 };
+
+/* ---------- плавний перехід між сторінками сайту ---------- */
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.addEventListener('click', function(e){
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target.closest('a');
+    if (!a || a.hasAttribute('onclick') || a.target === '_blank' || a.hasAttribute('download')) return;
+    var href = a.getAttribute('href');
+    if (!href) return;
+    var url;
+    try { url = new URL(href, window.location.href); } catch(err){ return; }
+    if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return;
+    e.preventDefault();
+    if (reduce) { window.location.href = url.href; return; }
+    document.body.classList.add('page-out');
+    setTimeout(function(){ window.location.href = url.href; }, 380);
+  });
+})();
 </script>
 
 </body>
