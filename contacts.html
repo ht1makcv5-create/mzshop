@@ -178,15 +178,29 @@
   .order-success p{color:var(--muted);font-size:.85rem;}
 
   /* ---- плавний перехід між сторінками: contacts завжди рухається "вліво" (на каталог виходить вліво, з каталогу заходить зліва) ---- */
-  /* ── premium horizontal slide transition ── */
-  @keyframes mzSlideOutRight{from{transform:translateX(0);opacity:1;}to{transform:translateX(52%);opacity:0;}}
-  @keyframes mzSlideOutLeft {from{transform:translateX(0);opacity:1;}to{transform:translateX(-52%);opacity:0;}}
-  @keyframes mzSlideInLeft  {from{transform:translateX(-100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
-  @keyframes mzSlideInRight {from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
-  body.page-out-fwd{will-change:transform,opacity;animation:mzSlideOutRight .42s cubic-bezier(.4,0,.2,1) forwards;pointer-events:none;overflow:hidden;}
-  body.page-out-bwd{will-change:transform,opacity;animation:mzSlideOutLeft  .42s cubic-bezier(.4,0,.2,1) forwards;pointer-events:none;overflow:hidden;}
-  body.page-in-fwd {will-change:transform,opacity;animation:mzSlideInLeft   .72s cubic-bezier(.16,.8,.24,1);}
-  body.page-in-bwd {will-change:transform,opacity;animation:mzSlideInRight  .72s cubic-bezier(.16,.8,.24,1);}
+  /* ── cinematic horizontal slide + blur transition ── */
+  @keyframes mzExitFwd{
+    0%  {transform:translateX(0)    scale(1);    opacity:1; filter:blur(0px);}
+    100%{transform:translateX(-38%) scale(.97);  opacity:0; filter:blur(7px);}
+  }
+  @keyframes mzExitBwd{
+    0%  {transform:translateX(0)   scale(1);    opacity:1; filter:blur(0px);}
+    100%{transform:translateX(38%) scale(.97);  opacity:0; filter:blur(7px);}
+  }
+  @keyframes mzEnterFwd{
+    0%  {transform:translateX(100%) scale(1.02); opacity:0; filter:blur(10px);}
+    60% {filter:blur(2px);}
+    100%{transform:translateX(0)    scale(1);   opacity:1; filter:blur(0px);}
+  }
+  @keyframes mzEnterBwd{
+    0%  {transform:translateX(-100%) scale(1.02); opacity:0; filter:blur(10px);}
+    60% {filter:blur(2px);}
+    100%{transform:translateX(0)     scale(1);   opacity:1; filter:blur(0px);}
+  }
+  body.page-out-fwd{will-change:transform,opacity,filter;animation:mzExitFwd  .38s cubic-bezier(.55,0,.45,1) forwards;pointer-events:none;overflow:hidden;}
+  body.page-out-bwd{will-change:transform,opacity,filter;animation:mzExitBwd  .38s cubic-bezier(.55,0,.45,1) forwards;pointer-events:none;overflow:hidden;}
+  body.page-in-fwd {will-change:transform,opacity,filter;animation:mzEnterFwd .78s cubic-bezier(.22,.9,.36,1);}
+  body.page-in-bwd {will-change:transform,opacity,filter;animation:mzEnterBwd .78s cubic-bezier(.22,.9,.36,1);}
   @media(prefers-reduced-motion:reduce){body.page-out-fwd,body.page-out-bwd,body.page-in-fwd,body.page-in-bwd{animation:none!important;}}
 </style>
 </head>
